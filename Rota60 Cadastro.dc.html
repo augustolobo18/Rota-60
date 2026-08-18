@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-2ee35572-5379-40c8-b935-69e15937865a/styles.css">
+<script src="_ds/nocturne-2ee35572-5379-40c8-b935-69e15937865a/_ds_bundle.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+<style>
+/* ═══════════════ ROTA60 — PALETA (único lugar para trocar cores) ═══════════════
+   Identidade da logo: laranja #ff7a1a sobre preto/branco, tipografia Inter.
+   Estrutura de tokens e estados vêm do Nocturne; a cor de acento é a da marca. */
+:root{
+  --r60-bg:#17171a;            /* fundo das telas            */
+  --r60-surface:#232326;       /* cartões, campos            */
+  --r60-surface-2:#2c2c30;     /* cartões sobre cartões      */
+  --r60-text:#f0efed;          /* texto principal            */
+  --r60-muted:#b4b2ae;         /* texto secundário           */
+  --r60-line:rgba(240,239,237,.16); /* divisores             */
+  --r60-accent:#ff7a1a;        /* laranja da marca           */
+  --r60-accent-soft:#5c2a08;   /* preenchimento suave        */
+  --r60-accent-deep:#2a1608;   /* preenchimento mais escuro  */
+  --r60-accent-light:#ffd0ac;  /* texto sobre preenchimento  */
+  --r60-danger:#e5a6a6;        /* erros                      */
+  --r60-hint:#97948e;          /* texto de apoio pequeno     */
+  --r60-radius:14px;
+  --r60-blend:lighten;         /* o fundo preto da logo desaparece */
+  --r60-logo:url('assets/logo-escuro.png'); /* LOGO — trocar só o caminho */
+}
+/* ── TEMA CLARO — mesmos nomes, laranja um passo mais escuro para contraste ── */
+[data-tema="claro"]{
+  --r60-bg:#fafaf8;
+  --r60-surface:#f0efec;
+  --r60-surface-2:#e3e2dd;
+  --r60-text:#1a1a1c;
+  --r60-muted:#56565a;
+  --r60-line:rgba(26,26,28,.18);
+  --r60-accent:#c94f04;
+  --r60-accent-soft:#ffd9bd;
+  --r60-accent-deep:#fff1e5;
+  --r60-accent-light:#7a2c00;
+  --r60-danger:#8a4a4a;
+  --r60-hint:#5b5b5f;
+  --r60-blend:darken;          /* o fundo branco da logo desaparece */
+  --r60-logo:url('assets/logo-claro.png');  /* LOGO — trocar só o caminho */
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#101012;font-family:Inter,system-ui,sans-serif}
+a{color:var(--r60-accent);text-underline-offset:3px}
+a:hover{color:var(--r60-accent-light)}
+input,button,textarea{font-family:inherit}
+input::placeholder{color:var(--r60-hint)}
+:focus-visible{outline:3px solid var(--r60-accent);outline-offset:2px}
+.r60-doc{padding:44px 48px 64px;color:#f0efed;font-family:Inter,system-ui,sans-serif}
+.r60-h{font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0 0 10px}
+.r60-p{font:400 15px/1.65 Inter,sans-serif;color:#b4b2ae;max-width:74ch;margin:0 0 8px}
+.r60-k{font:600 11px/1 ui-monospace,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase;color:#ff7a1a;margin:0 0 14px}
+</style>
+</helmet>
+
+<div class="r60-doc">
+  <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
+    <img src="assets/logo-escuro.png" alt="Rota60" width="72" height="72" style="width:72px;height:72px;mix-blend-mode:lighten">
+    <p class="r60-k" style="margin:0">Rota60 · fluxos de cadastro · protótipo navegável</p>
+  </div>
+  <h1 class="r60-h">Cadastro do idoso, do responsável e do motorista</h1>
+  <p class="r60-p">Base visual: a logo do Rota60 — laranja <span style="font-family:ui-monospace,monospace;color:#ff7a1a">#ff7a1a</span> sobre preto ou branco — com a estrutura de tokens, estados e formas do <strong style="color:#f0efed;font-weight:500">Nocturne</strong>. Adaptei a densidade do sistema para o público idoso: corpo de texto a partir de 22px, alvos de toque de 64–76px e um campo por linha — o resto (cores, raios, acento) segue os tokens do sistema.</p>
+  <p class="r60-p">Premissas que assumi: <strong style="color:#f0efed;font-weight:500">(1)</strong> cadastro do idoso em 3 telas, agrupando os campos escolhidos (identificação → endereço e acessibilidade → foto e senha); <strong style="color:#f0efed;font-weight:500">(2)</strong> senha é um código de 4 dígitos digitado em teclado grande; <strong style="color:#f0efed;font-weight:500">(3)</strong> o responsável convida pelo telefone e o idoso aprova na própria tela; <strong style="color:#f0efed;font-weight:500">(4)</strong> motorista tem 4 etapas por causa dos documentos. Sem backend: os perfis fictícios ficam no código e no armazenamento local.</p>
+
+  <div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;margin-top:34px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <span style="font:600 11px/1 ui-monospace,monospace;padding:4px 8px;background:#ff7a1a;color:#17171a;border-radius:5px">1a</span>
+        <span style="font:400 13px/1.3 Inter,sans-serif;color:#b4b2ae">Protótipo — toque nos botões para navegar</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:10px 12px;background:#202023;border:1px solid rgba(240,239,237,.12);border-radius:10px">
+        <span style="font:400 12px/1 Inter,sans-serif;color:var(--r60-hint)">Fluxo do idoso:</span>
+        <button onClick="{{ setFluxoPasso }}" style="cursor:pointer;font:500 12px/1 Inter,sans-serif;padding:8px 12px;border-radius:7px;border:1px solid var(--r60-accent);background:{{ bgPasso }};color:var(--r60-accent)">Passo a passo (3 telas)</button>
+        <button onClick="{{ setFluxoUnica }}" style="cursor:pointer;font:500 12px/1 Inter,sans-serif;padding:8px 12px;border-radius:7px;border:1px solid var(--r60-accent);background:{{ bgUnica }};color:var(--r60-accent)">Tela única (rolagem)</button>
+        <span style="width:1px;height:22px;background:rgba(240,239,237,.14)"></span>
+        <button onClick="{{ trocarTema }}" style="cursor:pointer;font:500 12px/1 Inter,sans-serif;padding:8px 12px;border-radius:7px;border:1px solid rgba(240,239,237,.2);background:transparent;color:#b4b2ae">{{ temaLabel }}</button>
+        <button onClick="{{ reiniciar }}" style="cursor:pointer;font:500 12px/1 Inter,sans-serif;padding:8px 12px;border-radius:7px;border:1px solid rgba(240,239,237,.2);background:transparent;color:#b4b2ae">Reiniciar</button>
+        <span style="font:400 12px/1 ui-monospace,monospace;color:#a35a1e">{{ telaAtual }}</span>
+      </div>
+
+      <x-import component-from-global-scope="AndroidDevice" from="./android-frame.jsx" dark="{{ escuro }}" width="{{ larguraTela }}" height="{{ alturaTela }}" hint-size="428px,908px">
+        <div data-tema="{{ tema }}" style="height:100%;display:flex;flex-direction:column;background:var(--r60-bg);color:var(--r60-text);font-size:22px;line-height:1.45">
+
+          <div style="flex:none;display:flex;align-items:center;gap:8px;padding:10px 14px 6px;min-height:64px">
+            <sc-if value="{{ mostrarVoltar }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ voltar }}" aria-label="Voltar" style="flex:none;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--r60-line);background:transparent;color:var(--r60-text);cursor:pointer;font-size:30px">←</button>
+            </sc-if>
+            <div style="flex:1;min-width:0;padding-left:4px">
+              <sc-if value="{{ etapaLabel }}" hint-placeholder-val="{{ true }}">
+                <div style="font:600 14px/1.2 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--r60-accent)">{{ etapaLabel }}</div>
+              </sc-if>
+            </div>
+            <button onClick="{{ falarTela }}" aria-label="Ouvir esta tela" style="flex:none;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--r60-accent);background:var(--r60-accent-deep);color:var(--r60-accent);cursor:pointer;font-size:28px">🔊</button>
+            <button onClick="{{ trocarTema }}" aria-label="{{ temaLabel }}" style="flex:none;width:64px;height:64px;display:flex;align-items:center;justify-content:center;border-radius:12px;border:1px solid var(--r60-line);background:transparent;color:var(--r60-text);cursor:pointer;font-size:26px">{{ temaIcone }}</button>
+          </div>
+
+          <div style="flex:1;min-height:0;overflow:auto;padding:6px 20px 20px">
+
+            <sc-if value="{{ sWelcome }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="display:flex;justify-content:center;padding:8px 0 4px">
+                  <div role="img" aria-label="Rota60" style="width:150px;height:150px;background-image:var(--r60-logo);background-size:contain;background-position:center;background-repeat:no-repeat;mix-blend-mode:var(--r60-blend)"></div>
+                </div>
+                <div>
+                  <h2 style="font:500 40px/1.1 Inter,sans-serif;letter-spacing:-.02em;margin:0 0 10px">Bem-vindo</h2>
+                  <p style="margin:0;font-size:24px;color:var(--r60-muted)">Quem está criando a conta?</p>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:14px">
+                  <button onClick="{{ irIdoso }}" style="display:flex;align-items:center;gap:16px;text-align:left;padding:20px;min-height:104px;border-radius:var(--r60-radius);border:2px solid var(--r60-accent);background:var(--r60-accent-deep);color:var(--r60-text);cursor:pointer">
+                    <span style="flex:none;width:56px;height:56px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:30px">👋</span>
+                    <span><span style="display:block;font:500 26px/1.2 Inter,sans-serif">Sou eu que vou viajar</span><span style="display:block;font-size:19px;color:var(--r60-muted);margin-top:4px">Pedir carona para mim</span></span>
+                  </button>
+                  <button onClick="{{ irResp }}" style="display:flex;align-items:center;gap:16px;text-align:left;padding:20px;min-height:104px;border-radius:var(--r60-radius);border:1px solid var(--r60-line);background:var(--r60-surface);color:var(--r60-text);cursor:pointer">
+                    <span style="flex:none;width:56px;height:56px;border-radius:50%;background:var(--r60-surface-2);display:flex;align-items:center;justify-content:center;font-size:30px">🛡️</span>
+                    <span><span style="display:block;font:500 26px/1.2 Inter,sans-serif">Sou responsável</span><span style="display:block;font-size:19px;color:var(--r60-muted);margin-top:4px">Acompanhar as viagens de alguém</span></span>
+                  </button>
+                  <button onClick="{{ irMoto }}" style="display:flex;align-items:center;gap:16px;text-align:left;padding:20px;min-height:104px;border-radius:var(--r60-radius);border:1px solid var(--r60-line);background:var(--r60-surface);color:var(--r60-text);cursor:pointer">
+                    <span style="flex:none;width:56px;height:56px;border-radius:50%;background:var(--r60-surface-2);display:flex;align-items:center;justify-content:center;font-size:30px">🚗</span>
+                    <span><span style="display:block;font:500 26px/1.2 Inter,sans-serif">Sou motorista</span><span style="display:block;font-size:19px;color:var(--r60-muted);margin-top:4px">Quero dirigir com o Rota60</span></span>
+                  </button>
+                </div>
+                <div style="border-top:1px solid var(--r60-line);padding-top:16px">
+                  <div style="font:600 13px/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--r60-hint);margin-bottom:12px">Contas de demonstração</div>
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <sc-for list="{{ demos }}" as="d" hint-placeholder-count="3">
+                      <button onClick="{{ d.abrir }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:14px;min-height:72px;border-radius:12px;border:1px solid var(--r60-line);background:transparent;color:var(--r60-text);cursor:pointer">
+                        <span style="flex:none;width:44px;height:44px;border-radius:50%;background:var(--r60-surface-2);display:flex;align-items:center;justify-content:center;font-size:20px">{{ d.emoji }}</span>
+                        <span style="flex:1"><span style="display:block;font:500 20px/1.2 Inter,sans-serif">{{ d.nome }}</span><span style="display:block;font-size:16px;color:var(--r60-muted)">{{ d.papel }}</span></span>
+                        <span style="font-size:20px;color:var(--r60-accent)">›</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sDemo }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <div style="display:flex;align-items:center;gap:16px">
+                  <span style="flex:none;width:76px;height:76px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:34px">{{ demo.emoji }}</span>
+                  <div><div style="font:500 30px/1.1 Inter,sans-serif">{{ demo.nome }}</div><div style="font-size:20px;color:var(--r60-muted)">{{ demo.papel }}</div></div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:2px;border-radius:var(--r60-radius);background:var(--r60-surface);padding:6px 18px">
+                  <sc-for list="{{ demo.linhas }}" as="l" hint-placeholder-count="4">
+                    <div style="display:flex;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--r60-line)">
+                      <span style="font-size:19px;color:var(--r60-muted)">{{ l.k }}</span>
+                      <span style="font-size:20px;text-align:right">{{ l.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <p style="margin:0;font-size:18px;color:var(--r60-hint)">Perfil fictício, guardado no aparelho para testes.</p>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sI1 }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Como podemos te chamar?</h2>
+                <div>
+                  <label for="i-nome" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Nome completo</label>
+                  <input id="i-nome" value="{{ f.nome }}" onChange="{{ h.nome }}" placeholder="Maria Aparecida Souza" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="i-tel" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Telefone celular</label>
+                  <input id="i-tel" inputmode="tel" value="{{ f.tel }}" onChange="{{ h.tel }}" placeholder="(11) 90000-0000" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="i-cpf" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">CPF</label>
+                  <input id="i-cpf" inputmode="numeric" value="{{ f.cpf }}" onChange="{{ h.cpf }}" placeholder="000.000.000-00" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <p style="margin:0;font-size:18px;color:var(--r60-hint)">Precisamos do CPF só para a sua segurança.</p>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sI2 }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Onde você mora?</h2>
+                <div>
+                  <label for="i-end" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Rua e número</label>
+                  <input id="i-end" value="{{ f.endereco }}" onChange="{{ h.endereco }}" placeholder="Rua das Acácias, 128" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="i-cid" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Bairro e cidade</label>
+                  <input id="i-cid" value="{{ f.cidade }}" onChange="{{ h.cidade }}" placeholder="Santana, São Paulo" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div style="border-top:1px solid var(--r60-line);padding-top:18px">
+                  <div style="font-size:22px;margin-bottom:6px">Você precisa de alguma ajuda no carro?</div>
+                  <div style="font-size:18px;color:var(--r60-hint);margin-bottom:14px">Pode marcar mais de uma. Todos os carros são acessíveis.</div>
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <sc-for list="{{ acessOpcoes }}" as="o" hint-placeholder-count="5">
+                      <button onClick="{{ o.toggle }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;min-height:72px;border-radius:12px;border:{{ o.borda }};background:{{ o.fundo }};color:var(--r60-text);cursor:pointer;font-size:21px">
+                        <span style="flex:none;width:32px;height:32px;border-radius:8px;border:2px solid var(--r60-accent);background:{{ o.caixa }};display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--r60-bg)">{{ o.marca }}</span>
+                        {{ o.label }}
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sI3 }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Sua foto e sua senha</h2>
+                <div style="display:flex;align-items:center;gap:18px">
+                  <div style="flex:none;width:120px;height:120px;border-radius:50%;overflow:hidden;border:1px solid var(--r60-line);background:{{ fotoFundo }};display:flex;align-items:center;justify-content:center;font-size:34px;color:var(--r60-hint)">{{ fotoMarca }}</div>
+                  <div style="flex:1">
+                    <button onClick="{{ tirarFoto }}" style="width:100%;min-height:72px;border-radius:12px;border:2px solid var(--r60-accent);background:var(--r60-accent-deep);color:var(--r60-accent);font:500 22px/1.2 Inter,sans-serif;cursor:pointer">{{ fotoBotao }}</button>
+                    <div style="font-size:17px;color:var(--r60-hint);margin-top:8px">O motorista te reconhece na chegada.</div>
+                  </div>
+                </div>
+                <div style="border-top:1px solid var(--r60-line);padding-top:18px">
+                  <div style="font-size:23px;margin-bottom:4px">{{ senhaTitulo }}</div>
+                  <div style="font-size:18px;color:{{ senhaAvisoCor }};margin-bottom:16px">{{ senhaAviso }}</div>
+                  <div style="display:flex;gap:14px;justify-content:center;margin-bottom:18px">
+                    <sc-for list="{{ senhaPontos }}" as="p" hint-placeholder-count="4">
+                      <span style="width:24px;height:24px;border-radius:50%;border:2px solid var(--r60-accent);background:{{ p.fundo }}"></span>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                    <sc-for list="{{ teclas }}" as="t" hint-placeholder-count="12">
+                      <button onClick="{{ t.press }}" style="min-height:74px;border-radius:12px;border:1px solid var(--r60-line);background:var(--r60-surface);color:var(--r60-text);font:500 28px/1 Inter,sans-serif;cursor:pointer">{{ t.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sIUnica }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Seus dados</h2>
+                <p style="margin:0;font-size:19px;color:var(--r60-hint)">Uma tela só. Vá descendo com o dedo.</p>
+                <div>
+                  <label for="u-nome" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Nome completo</label>
+                  <input id="u-nome" value="{{ f.nome }}" onChange="{{ h.nome }}" placeholder="Maria Aparecida Souza" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="u-tel" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Telefone celular</label>
+                  <input id="u-tel" inputmode="tel" value="{{ f.tel }}" onChange="{{ h.tel }}" placeholder="(11) 90000-0000" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="u-cpf" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">CPF</label>
+                  <input id="u-cpf" inputmode="numeric" value="{{ f.cpf }}" onChange="{{ h.cpf }}" placeholder="000.000.000-00" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="u-end" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Rua e número</label>
+                  <input id="u-end" value="{{ f.endereco }}" onChange="{{ h.endereco }}" placeholder="Rua das Acácias, 128" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="u-cid" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Bairro e cidade</label>
+                  <input id="u-cid" value="{{ f.cidade }}" onChange="{{ h.cidade }}" placeholder="Santana, São Paulo" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <div style="font-size:20px;color:var(--r60-muted);margin-bottom:10px">Ajuda que você precisa no carro</div>
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <sc-for list="{{ acessOpcoes }}" as="o" hint-placeholder-count="5">
+                      <button onClick="{{ o.toggle }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;min-height:72px;border-radius:12px;border:{{ o.borda }};background:{{ o.fundo }};color:var(--r60-text);cursor:pointer;font-size:21px">
+                        <span style="flex:none;width:32px;height:32px;border-radius:8px;border:2px solid var(--r60-accent);background:{{ o.caixa }};display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--r60-bg)">{{ o.marca }}</span>
+                        {{ o.label }}
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;border-top:1px solid var(--r60-line);padding-top:18px">
+                  <div style="flex:none;width:96px;height:96px;border-radius:50%;overflow:hidden;border:1px solid var(--r60-line);background:{{ fotoFundo }};display:flex;align-items:center;justify-content:center;font-size:30px;color:var(--r60-hint)">{{ fotoMarca }}</div>
+                  <button onClick="{{ tirarFoto }}" style="flex:1;min-height:72px;border-radius:12px;border:2px solid var(--r60-accent);background:var(--r60-accent-deep);color:var(--r60-accent);font:500 22px/1.2 Inter,sans-serif;cursor:pointer">{{ fotoBotao }}</button>
+                </div>
+                <div style="border-top:1px solid var(--r60-line);padding-top:18px">
+                  <div style="font-size:22px;margin-bottom:12px">Crie uma senha de 4 números</div>
+                  <div style="display:flex;gap:14px;margin-bottom:14px">
+                    <sc-for list="{{ senhaPontos }}" as="p" hint-placeholder-count="4">
+                      <span style="width:24px;height:24px;border-radius:50%;border:2px solid var(--r60-accent);background:{{ p.fundo }}"></span>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
+                    <sc-for list="{{ teclas }}" as="t" hint-placeholder-count="12">
+                      <button onClick="{{ t.press }}" style="min-height:74px;border-radius:12px;border:1px solid var(--r60-line);background:var(--r60-surface);color:var(--r60-text);font:500 28px/1 Inter,sans-serif;cursor:pointer">{{ t.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sIDone }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="width:104px;height:104px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--r60-accent-light)">✓</div>
+                <h2 style="font:500 36px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Pronto, {{ primeiroNome }}!</h2>
+                <p style="margin:0;font-size:23px;color:var(--r60-muted)">Sua conta está criada. Você já pode pedir uma carona.</p>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:18px 18px 6px">
+                  <sc-for list="{{ resumoIdoso }}" as="l" hint-placeholder-count="5">
+                    <div style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--r60-line)">
+                      <span style="font-size:18px;color:var(--r60-muted)">{{ l.k }}</span>
+                      <span style="font-size:19px;text-align:right">{{ l.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="border:1px solid var(--r60-line);border-radius:var(--r60-radius);padding:18px">
+                  <div style="font-size:22px;margin-bottom:6px">Alguém vai te acompanhar?</div>
+                  <div style="font-size:19px;color:var(--r60-hint)">Se um filho ou neto criar a conta de responsável, ele pede para se ligar à sua e você aprova aqui na tela.</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sR1 }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Seus dados</h2>
+                <div>
+                  <label for="r-nome" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Nome completo</label>
+                  <input id="r-nome" value="{{ f.rNome }}" onChange="{{ h.rNome }}" placeholder="Carlos Souza" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="r-tel" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Seu telefone</label>
+                  <input id="r-tel" inputmode="tel" value="{{ f.rTel }}" onChange="{{ h.rTel }}" placeholder="(11) 90000-0000" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="r-email" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">E-mail</label>
+                  <input id="r-email" inputmode="email" value="{{ f.rEmail }}" onChange="{{ h.rEmail }}" placeholder="carlos@email.com" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="r-senha" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Senha</label>
+                  <input id="r-senha" type="password" value="{{ f.rSenha }}" onChange="{{ h.rSenha }}" placeholder="mínimo 6 caracteres" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sR2 }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Quem você vai acompanhar?</h2>
+                <p style="margin:0;font-size:20px;color:var(--r60-muted)">Digite o telefone da conta dela ou dele. A pessoa recebe um aviso e aprova na própria tela.</p>
+                <div>
+                  <label for="r-idoso" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Telefone do idoso</label>
+                  <input id="r-idoso" inputmode="tel" value="{{ f.rIdosoTel }}" onChange="{{ h.rIdosoTel }}" placeholder="(11) 98888-1234" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <div style="font-size:20px;color:var(--r60-muted);margin-bottom:10px">Seu parentesco</div>
+                  <div style="display:flex;flex-wrap:wrap;gap:10px">
+                    <sc-for list="{{ parentescos }}" as="p" hint-placeholder-count="4">
+                      <button onClick="{{ p.pick }}" style="min-height:64px;padding:0 20px;border-radius:12px;border:{{ p.borda }};background:{{ p.fundo }};color:var(--r60-text);font-size:20px;cursor:pointer">{{ p.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <sc-if value="{{ contaEncontrada }}">
+                  <div style="display:flex;align-items:center;gap:14px;border-radius:var(--r60-radius);border:1px solid var(--r60-accent);background:var(--r60-accent-deep);padding:16px">
+                    <span style="flex:none;width:52px;height:52px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:24px">👵</span>
+                    <span><span style="display:block;font-size:21px">Conta encontrada</span><span style="display:block;font-size:18px;color:var(--r60-muted)">{{ contaEncontradaNome }}</span></span>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sR3 }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="width:104px;height:104px;border-radius:50%;border:2px solid var(--r60-accent);display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--r60-accent)">⏳</div>
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Convite enviado</h2>
+                <p style="margin:0;font-size:22px;color:var(--r60-muted)">Esperando {{ contaEncontradaNome }} aprovar no celular dela. Assim que aprovar, você passa a ver as viagens em tempo real.</p>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:18px">
+                  <div style="font:600 13px/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--r60-hint);margin-bottom:10px">Você vai poder</div>
+                  <div style="font-size:20px;line-height:1.6">Ver a viagem no mapa · Saber o motorista e a placa · Receber aviso de saída e chegada</div>
+                </div>
+                <button onClick="{{ verTelaIdoso }}" style="min-height:72px;border-radius:12px;border:1px dashed var(--r60-accent);background:transparent;color:var(--r60-accent);font:500 20px/1.2 Inter,sans-serif;cursor:pointer">Ver como aparece no celular do idoso →</button>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sIAprovar }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="font:600 14px/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--r60-accent)">Tela do idoso</div>
+                <div style="display:flex;align-items:center;gap:16px">
+                  <span style="flex:none;width:84px;height:84px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:36px">🛡️</span>
+                  <h2 style="font:500 30px/1.2 Inter,sans-serif;margin:0">{{ respNome }} quer acompanhar suas viagens</h2>
+                </div>
+                <p style="margin:0;font-size:22px;color:var(--r60-muted)">Ele vai ver onde você está durante a viagem e o nome do motorista. Você pode desligar isso depois.</p>
+                <div style="display:flex;flex-direction:column;gap:14px">
+                  <button onClick="{{ aprovar }}" style="min-height:80px;border-radius:12px;border:2px solid var(--r60-accent);background:var(--r60-accent-deep);color:var(--r60-accent);font:500 26px/1.2 Inter,sans-serif;cursor:pointer">Sim, pode acompanhar</button>
+                  <button onClick="{{ recusar }}" style="min-height:80px;border-radius:12px;border:1px solid var(--r60-line);background:transparent;color:var(--r60-text);font:500 24px/1.2 Inter,sans-serif;cursor:pointer">Agora não</button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sRDone }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="width:104px;height:104px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--r60-accent-light)">✓</div>
+                <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">{{ vinculoTitulo }}</h2>
+                <p style="margin:0;font-size:22px;color:var(--r60-muted)">{{ vinculoTexto }}</p>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:18px 18px 6px">
+                  <sc-for list="{{ resumoResp }}" as="l" hint-placeholder-count="4">
+                    <div style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--r60-line)">
+                      <span style="font-size:18px;color:var(--r60-muted)">{{ l.k }}</span>
+                      <span style="font-size:19px;text-align:right">{{ l.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sM1 }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <h2 style="font:500 32px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Seus dados</h2>
+                <div>
+                  <label for="m-nome" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Nome completo</label>
+                  <input id="m-nome" value="{{ f.mNome }}" onChange="{{ h.mNome }}" placeholder="Josué Ferreira" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div style="display:flex;gap:14px">
+                  <div style="flex:1">
+                    <label for="m-cpf" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">CPF</label>
+                    <input id="m-cpf" inputmode="numeric" value="{{ f.mCpf }}" onChange="{{ h.mCpf }}" placeholder="000.000.000-00" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  </div>
+                </div>
+                <div>
+                  <label for="m-tel" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Telefone</label>
+                  <input id="m-tel" inputmode="tel" value="{{ f.mTel }}" onChange="{{ h.mTel }}" placeholder="(11) 90000-0000" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <label for="m-senha" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Senha</label>
+                  <input id="m-senha" type="password" value="{{ f.mSenha }}" onChange="{{ h.mSenha }}" placeholder="mínimo 6 caracteres" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div style="display:flex;align-items:center;gap:16px;border-top:1px solid var(--r60-line);padding-top:18px">
+                  <div style="flex:none;width:92px;height:92px;border-radius:50%;overflow:hidden;border:1px solid var(--r60-line);background:{{ selfieFundo }};display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--r60-hint)">{{ selfieMarca }}</div>
+                  <div style="flex:1">
+                    <button onClick="{{ tirarSelfie }}" style="width:100%;min-height:68px;border-radius:12px;border:2px solid var(--r60-accent);background:var(--r60-accent-deep);color:var(--r60-accent);font:500 21px/1.2 Inter,sans-serif;cursor:pointer">{{ selfieBotao }}</button>
+                    <div style="font-size:16px;color:var(--r60-hint);margin-top:6px">Selfie de verificação — comparada com a CNH.</div>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sM2 }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <h2 style="font:500 32px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Documentos</h2>
+                <div>
+                  <label for="m-cnh" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Número da CNH</label>
+                  <input id="m-cnh" inputmode="numeric" value="{{ f.mCnh }}" onChange="{{ h.mCnh }}" placeholder="00000000000" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div style="display:flex;flex-direction:column;gap:12px">
+                  <sc-for list="{{ docsUpload }}" as="d" hint-placeholder-count="2">
+                    <button onClick="{{ d.toggle }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:14px 16px;min-height:88px;border-radius:12px;border:{{ d.borda }};background:{{ d.fundo }};color:var(--r60-text);cursor:pointer">
+                      <span style="flex:none;width:56px;height:56px;border-radius:10px;background:{{ d.thumb }};display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--r60-hint)">{{ d.icone }}</span>
+                      <span style="flex:1"><span style="display:block;font-size:21px">{{ d.label }}</span><span style="display:block;font-size:17px;color:var(--r60-muted)">{{ d.estado }}</span></span>
+                    </button>
+                  </sc-for>
+                </div>
+                <div style="border-top:1px solid var(--r60-line);padding-top:18px">
+                  <button onClick="{{ toggleAntecedentes }}" style="display:flex;align-items:flex-start;gap:14px;text-align:left;width:100%;padding:14px 16px;border-radius:12px;border:{{ antBorda }};background:{{ antFundo }};color:var(--r60-text);cursor:pointer">
+                    <span style="flex:none;width:32px;height:32px;border-radius:8px;border:2px solid var(--r60-accent);background:{{ antCaixa }};display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--r60-bg)">{{ antMarca }}</span>
+                    <span style="font-size:19px;line-height:1.45">Autorizo a consulta de antecedentes criminais e de pontuação na CNH.</span>
+                  </button>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sM3 }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <h2 style="font:500 32px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Seu veículo</h2>
+                <div style="display:flex;gap:12px">
+                  <div style="flex:1.1">
+                    <label for="m-placa" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Placa</label>
+                    <input id="m-placa" value="{{ f.mPlaca }}" onChange="{{ h.mPlaca }}" placeholder="ABC1D23" style="width:100%;min-height:68px;padding:12px 16px;font-size:23px;letter-spacing:.06em;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  </div>
+                  <div style="flex:.8">
+                    <label for="m-ano" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Ano</label>
+                    <input id="m-ano" inputmode="numeric" value="{{ f.mAno }}" onChange="{{ h.mAno }}" placeholder="2019" style="width:100%;min-height:68px;padding:12px 16px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  </div>
+                </div>
+                <div>
+                  <label for="m-modelo" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Marca e modelo</label>
+                  <input id="m-modelo" value="{{ f.mModelo }}" onChange="{{ h.mModelo }}" placeholder="Chevrolet Spin" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <div style="font-size:19px;color:var(--r60-muted);margin-bottom:10px">Fotos do carro</div>
+                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                    <sc-for list="{{ fotosCarro }}" as="fo" hint-placeholder-count="3">
+                      <button onClick="{{ fo.toggle }}" style="aspect-ratio:1;border-radius:12px;border:{{ fo.borda }};background:{{ fo.fundo }};color:{{ fo.cor }};font-size:15px;line-height:1.3;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:8px"><span style="font-size:24px">{{ fo.icone }}</span>{{ fo.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="border-top:1px solid var(--r60-line);padding-top:18px">
+                  <div style="font-size:21px;margin-bottom:4px">Acessibilidade do veículo</div>
+                  <div style="font-size:17px;color:var(--r60-hint);margin-bottom:14px">Marque o que o seu carro já oferece.</div>
+                  <div style="display:flex;flex-direction:column;gap:10px">
+                    <sc-for list="{{ acessVeiculo }}" as="a" hint-placeholder-count="4">
+                      <button onClick="{{ a.toggle }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:12px 16px;min-height:68px;border-radius:12px;border:{{ a.borda }};background:{{ a.fundo }};color:var(--r60-text);cursor:pointer;font-size:20px">
+                        <span style="flex:none;width:30px;height:30px;border-radius:8px;border:2px solid var(--r60-accent);background:{{ a.caixa }};display:flex;align-items:center;justify-content:center;font-size:19px;color:var(--r60-bg)">{{ a.marca }}</span>
+                        {{ a.label }}
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sM4 }}">
+              <div style="display:flex;flex-direction:column;gap:18px">
+                <h2 style="font:500 32px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Onde receber</h2>
+                <p style="margin:0;font-size:19px;color:var(--r60-hint)">Conta no seu nome, com o mesmo CPF do cadastro.</p>
+                <div>
+                  <label for="m-banco" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Banco</label>
+                  <input id="m-banco" value="{{ f.mBanco }}" onChange="{{ h.mBanco }}" placeholder="Banco do Brasil" style="width:100%;min-height:68px;padding:12px 18px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div style="display:flex;gap:12px">
+                  <div style="flex:.7">
+                    <label for="m-ag" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Agência</label>
+                    <input id="m-ag" inputmode="numeric" value="{{ f.mAgencia }}" onChange="{{ h.mAgencia }}" placeholder="0001" style="width:100%;min-height:68px;padding:12px 16px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  </div>
+                  <div style="flex:1">
+                    <label for="m-conta" style="display:block;font-size:19px;color:var(--r60-muted);margin-bottom:8px">Conta</label>
+                    <input id="m-conta" inputmode="numeric" value="{{ f.mConta }}" onChange="{{ h.mConta }}" placeholder="00012345-6" style="width:100%;min-height:68px;padding:12px 16px;font-size:23px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  </div>
+                </div>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:16px 18px;font-size:18px;color:var(--r60-muted)">Você recebe por semana, toda quarta-feira.</div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sMDone }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="width:104px;height:104px;border-radius:50%;border:2px solid var(--r60-accent);display:flex;align-items:center;justify-content:center;font-size:44px;color:var(--r60-accent)">⏳</div>
+                <h2 style="font:500 32px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Cadastro em análise</h2>
+                <p style="margin:0;font-size:21px;color:var(--r60-muted)">Conferimos documentos e antecedentes em até 2 dias úteis. Avisamos por SMS quando liberar.</p>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:18px 18px 6px">
+                  <sc-for list="{{ resumoMoto }}" as="l" hint-placeholder-count="5">
+                    <div style="display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--r60-line)">
+                      <span style="font-size:18px;color:var(--r60-muted)">{{ l.k }}</span>
+                      <span style="font-size:19px;text-align:right">{{ l.v }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+          </div>
+
+          <sc-if value="{{ temAcao }}" hint-placeholder-val="{{ true }}">
+            <div style="flex:none;padding:12px 20px 16px;border-top:1px solid var(--r60-line);background:var(--r60-bg)">
+              <sc-if value="{{ erro }}">
+                <div style="font-size:19px;color:var(--r60-danger);margin-bottom:10px">{{ erro }}</div>
+              </sc-if>
+              <button onClick="{{ avancar }}" style="width:100%;min-height:80px;border-radius:14px;border:2px solid var(--r60-accent);background:{{ acaoFundo }};color:var(--r60-accent);font:500 27px/1.2 Inter,sans-serif;cursor:pointer">{{ acaoLabel }}</button>
+            </div>
+          </sc-if>
+        </div>
+      </x-import>
+    </div>
+
+    <div style="flex:none;width:300px;display:flex;flex-direction:column;gap:16px;padding-top:38px">
+      <div style="font:600 11px/1 ui-monospace,monospace;letter-spacing:.12em;text-transform:uppercase;color:#ff7a1a">Mapa de telas</div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <sc-for list="{{ mapa }}" as="m" hint-placeholder-count="8">
+          <button onClick="{{ m.ir }}" style="display:flex;align-items:center;gap:10px;text-align:left;padding:10px 12px;border-radius:9px;border:{{ m.borda }};background:{{ m.fundo }};color:#f0efed;cursor:pointer;font:400 13px/1.3 Inter,sans-serif">
+            <span style="font:600 10px/1 ui-monospace,monospace;color:var(--r60-hint);width:26px">{{ m.cod }}</span>
+            {{ m.label }}
+          </button>
+        </sc-for>
+      </div>
+      <div style="font:400 12px/1.6 Inter,sans-serif;color:var(--r60-hint);border-top:1px solid rgba(240,239,237,.12);padding-top:14px">
+        Trocar cores: bloco <span style="font-family:ui-monospace,monospace;color:#b4b2ae">--r60-*</span> no topo do arquivo. Logo: só o caminho em <span style="font-family:ui-monospace,monospace;color:#b4b2ae">--r60-logo</span> (um por tema). Perfis fictícios: constante <span style="font-family:ui-monospace,monospace;color:#b4b2ae">PERFIS</span> na lógica, espelhada em <span style="font-family:ui-monospace,monospace;color:#b4b2ae">localStorage</span>.
+      </div>
+      <div style="font:400 12px/1.6 Inter,sans-serif;color:var(--r60-hint)">Próximos passos possíveis: tela de login, pedido de carona, acompanhamento da viagem pelo responsável.</div>
+    </div>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;temaInicial&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;escuro&quot;,&quot;claro&quot;],&quot;default&quot;:&quot;escuro&quot;,&quot;tsType&quot;:&quot;'escuro' | 'claro'&quot;,&quot;section&quot;:&quot;Aparência&quot;}}">
+const PERFIS = [
+  { id: 'neusa', emoji: '👵', nome: 'Neusa Aparecida', papel: 'Idosa · 74 anos', tel: '(11) 98888-1234',
+    linhas: [{k:'Telefone',v:'(11) 98888-1234'},{k:'CPF',v:'123.456.789-00'},{k:'Endereço',v:'Rua das Acácias, 128 — Santana'},{k:'Acessibilidade',v:'Usa bengala'},{k:'Responsável',v:'Carlos Souza (filho)'}] },
+  { id: 'carlos', emoji: '🛡️', nome: 'Carlos Souza', papel: 'Responsável · filho da Neusa', tel: '(11) 97777-5566',
+    linhas: [{k:'Telefone',v:'(11) 97777-5566'},{k:'E-mail',v:'carlos@email.com'},{k:'Acompanha',v:'Neusa Aparecida'},{k:'Vínculo desde',v:'12/03/2026'}] },
+  { id: 'josue', emoji: '🚗', nome: 'Josué Ferreira', papel: 'Motorista · 6 anos de CNH', tel: '(11) 96666-2211',
+    linhas: [{k:'Veículo',v:'Chevrolet Spin 2019'},{k:'Placa',v:'ABC1D23'},{k:'Acessibilidade',v:'Rampa e porta ampla'},{k:'Avaliação',v:'4,9'},{k:'Status',v:'Aprovado'}] }
+];
+
+const ACESS = ['Não preciso de ajuda','Uso bengala ou andador','Uso cadeira de rodas','Tenho dificuldade de ver','Preciso de ajuda para entrar no carro'];
+const ACESS_VEIC = ['Rampa ou elevador','Porta ampla / entrada baixa','Espaço para cadeira de rodas','Apoio de braço no banco'];
+const PARENTESCOS = ['Filho(a)','Neto(a)','Cônjuge','Cuidador(a)'];
+const FOTOS_CARRO = [{k:'frente',label:'Frente',icone:'🚙'},{k:'lado',label:'Lateral',icone:'🚘'},{k:'interior',label:'Interior',icone:'🪑'}];
+
+const PASSO = { i1:'Passo 1 de 3', i2:'Passo 2 de 3', i3:'Passo 3 de 3',
+  iUnica:'Cadastro', r1:'Passo 1 de 3', r2:'Passo 2 de 3', r3:'Passo 3 de 3',
+  m1:'Etapa 1 de 4', m2:'Etapa 2 de 4', m3:'Etapa 3 de 4', m4:'Etapa 4 de 4' };
+
+const FALA = {
+  welcome: 'Bem-vindo ao Rota 60. Quem está criando a conta? Sou eu que vou viajar, sou responsável, ou sou motorista.',
+  i1: 'Como podemos te chamar? Preencha nome completo, telefone celular e CPF.',
+  i2: 'Onde você mora? Preencha rua e número, bairro e cidade. Depois marque se precisa de alguma ajuda no carro.',
+  i3: 'Agora sua foto e sua senha de quatro números.',
+  iUnica: 'Preencha seus dados. Vá descendo a tela com o dedo até o fim.',
+  iDone: 'Pronto. Sua conta está criada e você já pode pedir uma carona.',
+  iAprovar: 'Uma pessoa quer acompanhar suas viagens. Toque em sim para permitir, ou agora não para recusar.'
+};
+
+class Component extends DCLogic {
+  state = {
+    tela: 'welcome', fluxo: 'passo', demo: null, tema: null,
+    acess: ['Uso bengala ou andador'], foto: false, selfie: false,
+    senha: '', senhaConf: '', senhaEtapa: 'criar', senhaErro: '',
+    parentesco: 'Filho(a)', docs: [], antecedentes: false, fotos: [], acessVeic: ['Rampa ou elevador'],
+    aprovado: null, erro: '',
+    f: { nome:'', tel:'', cpf:'', endereco:'', cidade:'',
+         rNome:'', rTel:'', rEmail:'', rSenha:'', rIdosoTel:'',
+         mNome:'', mCpf:'', mTel:'', mSenha:'', mCnh:'', mPlaca:'', mAno:'', mModelo:'', mBanco:'', mAgencia:'', mConta:'' }
+  };
+
+  componentDidMount() {
+    try {
+      if (!localStorage.getItem('rota60.perfis')) localStorage.setItem('rota60.perfis', JSON.stringify(PERFIS));
+      const salvo = localStorage.getItem('rota60.tema');
+      if (salvo === 'claro' || salvo === 'escuro') this.setState({ tema: salvo });
+    } catch (e) {}
+  }
+
+  trocarTema() {
+    const novo = this.tema() === 'escuro' ? 'claro' : 'escuro';
+    this.setState({ tema: novo });
+    try { localStorage.setItem('rota60.tema', novo); } catch (e) {}
+  }
+
+  // tema padrão: prop temaInicial, senão escuro (base do Nocturne)
+  tema() { return this.state.tema || this.props.temaInicial || 'escuro'; }
+
+  set(k, v) { this.setState(s => ({ f: Object.assign({}, s.f, { [k]: v }), erro: '' })); }
+  go(t) { this.setState({ tela: t, erro: '' }); }
+  toggleIn(key, v) {
+    this.setState(s => {
+      const arr = s[key].indexOf(v) >= 0 ? s[key].filter(x => x !== v) : s[key].concat([v]);
+      return { [key]: arr, erro: '' };
+    });
+  }
+
+  falar(txt) {
+    try {
+      const sp = window.speechSynthesis;
+      if (!sp || !txt) return;
+      sp.cancel();
+      const u = new SpeechSynthesisUtterance(txt);
+      u.lang = 'pt-BR'; u.rate = 0.9;
+      sp.speak(u);
+    } catch (e) {}
+  }
+
+  digito(d) {
+    this.setState(s => {
+      const campo = s.senhaEtapa === 'criar' ? 'senha' : 'senhaConf';
+      let v = s[campo];
+      if (d === 'del') v = v.slice(0, -1); else if (v.length < 4) v = v + d;
+      const out = { [campo]: v, senhaErro: '', erro: '' };
+      if (campo === 'senha' && v.length === 4 && s.fluxo === 'passo') out.senhaEtapa = 'confirmar';
+      if (campo === 'senhaConf' && v.length === 4 && v !== s.senha) { out.senhaErro = 'Os números não são iguais. Vamos tentar de novo.'; out.senha = ''; out.senhaConf = ''; out.senhaEtapa = 'criar'; }
+      return out;
+    });
+  }
+
+  salvarIdoso() {
+    try {
+      const atuais = JSON.parse(localStorage.getItem('rota60.perfis') || '[]');
+      atuais.push({ id: 'novo-' + Date.now(), emoji: '👵', nome: this.state.f.nome || 'Sem nome',
+        papel: 'Idoso · cadastro deste teste', tel: this.state.f.tel,
+        linhas: this.resumoIdoso() });
+      localStorage.setItem('rota60.perfis', JSON.stringify(atuais));
+    } catch (e) {}
+  }
+
+  resumoIdoso() {
+    const f = this.state.f;
+    return [{k:'Nome',v:f.nome||'—'},{k:'Telefone',v:f.tel||'—'},{k:'CPF',v:f.cpf||'—'},
+      {k:'Endereço',v:(f.endereco||'—')+(f.cidade?' — '+f.cidade:'')},
+      {k:'Acessibilidade',v:this.state.acess.length?this.state.acess.join(', '):'Nenhuma'},
+      {k:'Senha',v:'•••• (4 números)'}];
+  }
+
+  vazio(...ks) { return ks.some(k => !String(this.state.f[k] || '').trim()); }
+
+  proximo() {
+    const s = this.state, t = s.tela;
+    const erro = m => this.setState({ erro: m });
+    if (t === 'welcome') return;
+    if (t === 'i1') { if (this.vazio('nome','tel','cpf')) return erro('Preencha nome, telefone e CPF para continuar.'); return this.go('i2'); }
+    if (t === 'i2') { if (this.vazio('endereco','cidade')) return erro('Precisamos do endereço para buscar você.'); return this.go('i3'); }
+    if (t === 'i3') {
+      if (!s.foto) return erro('Falta a sua foto.');
+      if (s.senha.length < 4 || s.senhaConf !== s.senha) return erro('Crie e confirme a senha de 4 números.');
+      this.salvarIdoso(); return this.go('iDone');
+    }
+    if (t === 'iUnica') {
+      if (this.vazio('nome','tel','cpf','endereco','cidade')) return erro('Ainda faltam campos acima.');
+      if (!s.foto) return erro('Falta a sua foto.');
+      if (s.senha.length < 4) return erro('Crie a senha de 4 números.');
+      this.salvarIdoso(); return this.go('iDone');
+    }
+    if (t === 'iDone' || t === 'rDone' || t === 'mDone' || t === 'demo') return this.reiniciar();
+    if (t === 'r1') { if (this.vazio('rNome','rTel','rEmail','rSenha')) return erro('Preencha todos os campos.'); return this.go('r2'); }
+    if (t === 'r2') { if (this.vazio('rIdosoTel')) return erro('Digite o telefone da conta do idoso.'); return this.go('r3'); }
+    if (t === 'r3') return this.go('iAprovar');
+    if (t === 'm1') { if (this.vazio('mNome','mCpf','mTel','mSenha')) return erro('Preencha todos os campos.'); if (!s.selfie) return erro('Falta a selfie de verificação.'); return this.go('m2'); }
+    if (t === 'm2') { if (this.vazio('mCnh')) return erro('Informe o número da CNH.'); if (s.docs.length < 2) return erro('Envie a CNH e o documento do veículo.'); if (!s.antecedentes) return erro('É preciso autorizar a consulta de antecedentes.'); return this.go('m3'); }
+    if (t === 'm3') { if (this.vazio('mPlaca','mModelo','mAno')) return erro('Preencha placa, modelo e ano.'); if (s.fotos.length < 3) return erro('Envie as três fotos do carro.'); return this.go('m4'); }
+    if (t === 'm4') { if (this.vazio('mBanco','mAgencia','mConta')) return erro('Preencha os dados bancários.'); return this.go('mDone'); }
+  }
+
+  voltar() {
+    const back = { i1:'welcome', i2:'i1', i3:'i2', iUnica:'welcome', iDone:'welcome', demo:'welcome',
+      r1:'welcome', r2:'r1', r3:'r2', iAprovar:'r3', rDone:'welcome',
+      m1:'welcome', m2:'m1', m3:'m2', m4:'m3', mDone:'welcome' };
+    this.go(back[this.state.tela] || 'welcome');
+  }
+
+  reiniciar() {
+    this.setState({ tela:'welcome', demo:null, foto:false, selfie:false, senha:'', senhaConf:'', senhaEtapa:'criar',
+      senhaErro:'', docs:[], antecedentes:false, fotos:[], aprovado:null, erro:'',
+      f: Object.keys(this.state.f).reduce((o,k)=>(o[k]='',o), {}) });
+  }
+
+  renderVals() {
+    const s = this.state, t = s.tela, f = s.f;
+    const on = { border: '2px solid var(--r60-accent)', background: 'var(--r60-accent-deep)' };
+    const off = { border: '1px solid var(--r60-line)', background: 'var(--r60-surface)' };
+    const h = {};
+    Object.keys(f).forEach(k => { h[k] = e => this.set(k, e.target.value); });
+
+    const acoes = { i1:'Continuar', i2:'Continuar', i3:'Criar minha conta', iUnica:'Criar minha conta',
+      iDone:'Voltar ao início', r1:'Continuar', r2:'Enviar convite', r3:'Continuar',
+      m1:'Continuar', m2:'Continuar', m3:'Continuar', m4:'Enviar cadastro',
+      rDone:'Voltar ao início', mDone:'Voltar ao início', demo:'Voltar ao início' };
+
+    const titulos = { welcome:'Início', demo:'Perfil de teste', i1:'Idoso · dados', i2:'Idoso · endereço',
+      i3:'Idoso · foto e senha', iUnica:'Idoso · tela única', iDone:'Idoso · concluído',
+      r1:'Responsável · dados', r2:'Responsável · vínculo', r3:'Responsável · convite enviado',
+      iAprovar:'Idoso · aprovar vínculo', rDone:'Responsável · concluído',
+      m1:'Motorista · dados', m2:'Motorista · documentos', m3:'Motorista · veículo',
+      m4:'Motorista · pagamento', mDone:'Motorista · em análise' };
+
+    const mapaDef = [['welcome','1','Escolha do perfil'],
+      [s.fluxo === 'passo' ? 'i1' : 'iUnica','2','Idoso · dados'],
+      ['i2','3','Idoso · endereço + acessibilidade'],['i3','4','Idoso · foto + senha'],['iDone','5','Idoso · conta criada'],
+      ['r1','6','Responsável · dados'],['r2','7','Responsável · convidar idoso'],['r3','8','Responsável · aguardando'],
+      ['iAprovar','9','Idoso · aprova o vínculo'],['rDone','10','Vínculo concluído'],
+      ['m1','11','Motorista · dados'],['m2','12','Motorista · documentos'],['m3','13','Motorista · veículo'],
+      ['m4','14','Motorista · pagamento'],['mDone','15','Motorista · em análise']];
+    const mapa = mapaDef
+      .filter(m => !(s.fluxo === 'unica' && (m[0] === 'i2' || m[0] === 'i3')))
+      .map(m => ({ cod: m[1], label: m[2], ir: () => this.go(m[0]),
+        borda: t === m[0] ? '1px solid #ff7a1a' : '1px solid rgba(240,239,237,.12)',
+        fundo: t === m[0] ? '#2a1608' : 'transparent' }));
+
+    const senhaAtual = s.senhaEtapa === 'criar' ? s.senha : s.senhaConf;
+    const teclas = ['1','2','3','4','5','6','7','8','9','apagar','0','ok'].map(k => ({
+      label: k === 'apagar' ? '⌫' : (k === 'ok' ? '✓' : k),
+      press: () => { if (k === 'apagar') this.digito('del'); else if (k === 'ok') this.proximo(); else this.digito(k); }
+    }));
+
+    const respNome = f.rNome || 'Carlos Souza';
+    const idosoDemo = PERFIS.find(p => p.id === 'neusa');
+
+    return {
+      f, h, telaAtual: titulos[t] || t, larguraTela: 412, alturaTela: 892,
+      tema: this.tema(), escuro: this.tema() === 'escuro',
+      temaIcone: this.tema() === 'escuro' ? '☀️' : '🌙',
+      temaLabel: this.tema() === 'escuro' ? 'Tema claro' : 'Tema escuro',
+      trocarTema: () => this.trocarTema(),
+      sWelcome: t === 'welcome', sDemo: t === 'demo', sI1: t === 'i1', sI2: t === 'i2', sI3: t === 'i3',
+      sIUnica: t === 'iUnica', sIDone: t === 'iDone', sR1: t === 'r1', sR2: t === 'r2', sR3: t === 'r3',
+      sIAprovar: t === 'iAprovar', sRDone: t === 'rDone', sM1: t === 'm1', sM2: t === 'm2', sM3: t === 'm3',
+      sM4: t === 'm4', sMDone: t === 'mDone',
+      etapaLabel: PASSO[t] || '', mostrarVoltar: t !== 'welcome' && t !== 'iAprovar',
+      erro: s.erro, temAcao: !!acoes[t], acaoLabel: acoes[t] || '',
+      acaoFundo: 'var(--r60-accent-deep)',
+      avancar: () => this.proximo(), voltar: () => this.voltar(), reiniciar: () => this.reiniciar(),
+      falarTela: () => this.falar(FALA[t] || titulos[t]),
+      setFluxoPasso: () => this.setState({ fluxo: 'passo', tela: 'welcome', erro: '' }),
+      setFluxoUnica: () => this.setState({ fluxo: 'unica', tela: 'welcome', erro: '' }),
+      bgPasso: s.fluxo === 'passo' ? '#2a1608' : 'transparent',
+      bgUnica: s.fluxo === 'unica' ? '#2a1608' : 'transparent',
+      irIdoso: () => this.go(s.fluxo === 'passo' ? 'i1' : 'iUnica'),
+      irResp: () => this.go('r1'), irMoto: () => this.go('m1'),
+      mapa,
+      demos: PERFIS.map(p => ({ emoji: p.emoji, nome: p.nome, papel: p.papel,
+        abrir: () => this.setState({ tela: 'demo', demo: p, erro: '' }) })),
+      demo: s.demo || PERFIS[0],
+      acessOpcoes: ACESS.map(o => {
+        const marcado = s.acess.indexOf(o) >= 0;
+        return { label: o, toggle: () => this.toggleIn('acess', o), marca: marcado ? '✓' : '',
+          borda: marcado ? on.border : off.border, fundo: marcado ? on.background : off.background,
+          caixa: marcado ? 'var(--r60-accent)' : 'transparent' };
+      }),
+      fotoFundo: s.foto ? 'repeating-linear-gradient(135deg,var(--r60-accent-soft) 0 6px,var(--r60-accent-deep) 6px 12px)' : 'var(--r60-surface)',
+      fotoMarca: s.foto ? '' : '📷', fotoBotao: s.foto ? 'Trocar a foto' : 'Tirar foto agora',
+      tirarFoto: () => this.setState({ foto: !s.foto, erro: '' }),
+      selfieFundo: s.selfie ? 'repeating-linear-gradient(135deg,var(--r60-accent-soft) 0 6px,var(--r60-accent-deep) 6px 12px)' : 'var(--r60-surface)',
+      selfieMarca: s.selfie ? '' : '📷', selfieBotao: s.selfie ? 'Refazer selfie' : 'Tirar selfie',
+      tirarSelfie: () => this.setState({ selfie: !s.selfie, erro: '' }),
+      senhaTitulo: s.senhaEtapa === 'criar' ? 'Crie uma senha de 4 números' : 'Digite os 4 números outra vez',
+      senhaAviso: s.senhaErro || 'Use uma data fácil de lembrar, menos a sua data de nascimento.',
+      senhaAvisoCor: s.senhaErro ? 'var(--r60-danger)' : '#97948e',
+      senhaPontos: [0,1,2,3].map(i => ({ fundo: senhaAtual.length > i ? 'var(--r60-accent)' : 'transparent' })),
+      teclas,
+      primeiroNome: (f.nome || 'tudo certo').split(' ')[0],
+      resumoIdoso: this.resumoIdoso(),
+      parentescos: PARENTESCOS.map(p => ({ label: p, pick: () => this.setState({ parentesco: p }),
+        borda: s.parentesco === p ? on.border : off.border, fundo: s.parentesco === p ? on.background : off.background })),
+      contaEncontrada: String(f.rIdosoTel || '').replace(/\D/g, '').length >= 10,
+      contaEncontradaNome: idosoDemo.nome,
+      respNome,
+      verTelaIdoso: () => this.go('iAprovar'),
+      aprovar: () => this.setState({ aprovado: true, tela: 'rDone', erro: '' }),
+      recusar: () => this.setState({ aprovado: false, tela: 'rDone', erro: '' }),
+      vinculoTitulo: s.aprovado === false ? 'Convite recusado' : 'Contas ligadas',
+      vinculoTexto: s.aprovado === false
+        ? idosoDemo.nome + ' preferiu não compartilhar as viagens agora. Você pode convidar de novo mais tarde.'
+        : 'Agora você acompanha as viagens de ' + idosoDemo.nome + ' em tempo real.',
+      resumoResp: [{k:'Responsável',v:respNome},{k:'Telefone',v:f.rTel||'—'},{k:'E-mail',v:f.rEmail||'—'},
+        {k:'Parentesco',v:s.parentesco},{k:'Acompanha',v:idosoDemo.nome},
+        {k:'Situação',v:s.aprovado === false ? 'Aguardando nova tentativa' : 'Ativo'}],
+      docsUpload: [{k:'cnh',label:'Foto da CNH',icone:'🪪'},{k:'crlv',label:'Documento do veículo (CRLV)',icone:'📄'}].map(d => {
+        const ok = s.docs.indexOf(d.k) >= 0;
+        return { label: d.label, icone: ok ? '✓' : d.icone, estado: ok ? 'Enviado' : 'Toque para enviar',
+          toggle: () => this.toggleIn('docs', d.k), borda: ok ? on.border : off.border,
+          fundo: ok ? on.background : off.background,
+          thumb: ok ? 'var(--r60-accent-soft)' : 'var(--r60-surface-2)' };
+      }),
+      antMarca: s.antecedentes ? '✓' : '', antCaixa: s.antecedentes ? 'var(--r60-accent)' : 'transparent',
+      antBorda: s.antecedentes ? on.border : off.border, antFundo: s.antecedentes ? on.background : off.background,
+      toggleAntecedentes: () => this.setState({ antecedentes: !s.antecedentes, erro: '' }),
+      fotosCarro: FOTOS_CARRO.map(fo => {
+        const ok = s.fotos.indexOf(fo.k) >= 0;
+        return { label: ok ? 'Enviada' : fo.label, icone: ok ? '✓' : fo.icone,
+          toggle: () => this.toggleIn('fotos', fo.k), borda: ok ? on.border : off.border,
+          fundo: ok ? on.background : off.background, cor: ok ? 'var(--r60-accent)' : 'var(--r60-muted)' };
+      }),
+      acessVeiculo: ACESS_VEIC.map(a => {
+        const ok = s.acessVeic.indexOf(a) >= 0;
+        return { label: a, toggle: () => this.toggleIn('acessVeic', a), marca: ok ? '✓' : '',
+          borda: ok ? on.border : off.border, fundo: ok ? on.background : off.background,
+          caixa: ok ? 'var(--r60-accent)' : 'transparent' };
+      }),
+      resumoMoto: [{k:'Motorista',v:f.mNome||'—'},{k:'CNH',v:f.mCnh||'—'},
+        {k:'Veículo',v:[f.mModelo,f.mAno].filter(Boolean).join(' ')||'—'},{k:'Placa',v:f.mPlaca||'—'},
+        {k:'Acessibilidade',v:s.acessVeic.length?s.acessVeic.join(', '):'Nenhuma'},
+        {k:'Recebimento',v:[f.mBanco,f.mAgencia,f.mConta].filter(Boolean).join(' · ')||'—'}]
+    };
+  }
+}
+
+</script>
+</body>
+</html>
