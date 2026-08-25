@@ -72,7 +72,7 @@ input::placeholder{color:var(--r60-hint)}
   </div>
   <h1 class="r60-h">Cadastro e solicitação de corrida acessível</h1>
   <p class="r60-p">Base visual: a logo do Rota60 — laranja <span style="font-family:ui-monospace,monospace;color:#ff7a1a">#ff7a1a</span> sobre preto ou branco — com a estrutura de tokens, estados e formas do <strong style="color:#f0efed;font-weight:500">Nocturne</strong>. Adaptei a densidade do sistema para o público idoso: corpo de texto a partir de 22px, alvos de toque de 64–76px e um campo por linha — o resto (cores, raios, acento) segue os tokens do sistema.</p>
-  <p class="r60-p">Premissas que assumi: <strong style="color:#f0efed;font-weight:500">(1)</strong> cadastro do idoso em 3 telas, agrupando os campos escolhidos (identificação → endereço e acessibilidade → foto e senha); <strong style="color:#f0efed;font-weight:500">(2)</strong> senha é um código de 4 dígitos digitado em teclado grande; <strong style="color:#f0efed;font-weight:500">(3)</strong> o responsável convida pelo telefone e o idoso aprova na própria tela; <strong style="color:#f0efed;font-weight:500">(4)</strong> motorista tem 4 etapas por causa dos documentos. Sem backend: os perfis fictícios ficam no código e no armazenamento local.</p>
+  <p class="r60-p">Premissas que assumi: <strong style="color:#f0efed;font-weight:500">(1)</strong> cadastro do idoso em 3 telas, agrupando os campos escolhidos (identificação → endereço e acessibilidade → foto e senha); <strong style="color:#f0efed;font-weight:500">(2)</strong> senha é um código de 4 dígitos digitado em teclado grande; <strong style="color:#f0efed;font-weight:500">(3)</strong> o responsável convida pelo CPF do idoso — telefone fica como alternativa — e o idoso aprova na própria tela; <strong style="color:#f0efed;font-weight:500">(4)</strong> motorista tem 4 etapas por causa dos documentos. Sem backend: os perfis fictícios ficam no código e no armazenamento local.</p>
 
   <div style="display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start;margin-top:34px">
     <div style="display:flex;flex-direction:column;gap:12px">
@@ -432,10 +432,16 @@ input::placeholder{color:var(--r60-hint)}
             <sc-if value="{{ sR2 }}">
               <div style="display:flex;flex-direction:column;gap:20px">
                 <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Quem você vai acompanhar?</h2>
-                <p style="margin:0;font-size:20px;color:var(--r60-muted)">Digite o telefone da conta dela ou dele. A pessoa recebe um aviso e aprova na própria tela.</p>
+                <p style="margin:0;font-size:20px;color:var(--r60-muted)">Digite o CPF da conta dela ou dele. A pessoa recebe um aviso e aprova na própria tela.</p>
                 <div>
-                  <label for="r-idoso" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Telefone do idoso</label>
+                  <label for="r-idoso-cpf" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">CPF do idoso</label>
+                  <input id="r-idoso-cpf" inputmode="numeric" value="{{ f.rIdosoCpf }}" onChange="{{ h.rIdosoCpf }}" placeholder="000.000.000-00" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  <p style="margin:8px 0 0;font-size:18px;color:var(--r60-hint)">O CPF encontra a conta certa mesmo se a pessoa trocou de telefone.</p>
+                </div>
+                <div>
+                  <label for="r-idoso" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Telefone <span style="color:var(--r60-hint)">— opcional</span></label>
                   <input id="r-idoso" inputmode="tel" value="{{ f.rIdosoTel }}" onChange="{{ h.rIdosoTel }}" placeholder="(11) 98888-1234" style="width:100%;min-height:72px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  <p style="margin:8px 0 0;font-size:18px;color:var(--r60-hint)">Se você não souber o CPF, dá para procurar pelo telefone.</p>
                 </div>
                 <div>
                   <div style="font-size:20px;color:var(--r60-muted);margin-bottom:10px">Seu parentesco</div>
@@ -448,7 +454,13 @@ input::placeholder{color:var(--r60-hint)}
                 <sc-if value="{{ contaEncontrada }}">
                   <div style="display:flex;align-items:center;gap:14px;border-radius:var(--r60-radius);border:1px solid var(--r60-accent);background:var(--r60-accent-deep);padding:16px">
                     <span style="flex:none;width:52px;height:52px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:24px">👵</span>
-                    <span><span style="display:block;font-size:21px">Conta encontrada</span><span style="display:block;font-size:18px;color:var(--r60-muted)">{{ contaEncontradaNome }}</span></span>
+                    <span><span style="display:block;font-size:21px">Conta encontrada</span><span style="display:block;font-size:18px;color:var(--r60-muted)">{{ contaEncontradaNome }} · {{ contaEncontradaVia }}</span></span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ contaNaoEncontrada }}">
+                  <div style="display:flex;align-items:center;gap:14px;border-radius:var(--r60-radius);border:1px solid var(--r60-danger);padding:16px">
+                    <span style="flex:none;width:52px;height:52px;border-radius:50%;border:1px solid var(--r60-danger);display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--r60-danger)">?</span>
+                    <span><span style="display:block;font-size:21px">Não encontramos essa conta</span><span style="display:block;font-size:18px;color:var(--r60-muted)">Confira os números ou tente pelo telefone.</span></span>
                   </div>
                 </sc-if>
               </div>
@@ -666,11 +678,11 @@ input::placeholder{color:var(--r60-hint)}
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;temaInicial&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;escuro&quot;,&quot;claro&quot;],&quot;default&quot;:&quot;escuro&quot;,&quot;tsType&quot;:&quot;'escuro' | 'claro'&quot;,&quot;section&quot;:&quot;Aparência&quot;}}">
 const PERFIS = [
-  { id: 'neusa', emoji: '👵', nome: 'Neusa Aparecida', papel: 'Idosa · 74 anos', tel: '(11) 98888-1234',
+  { id: 'neusa', emoji: '👵', nome: 'Neusa Aparecida', papel: 'Idosa · 74 anos', tel: '(11) 98888-1234', cpf: '123.456.789-00',
     linhas: [{k:'Telefone',v:'(11) 98888-1234'},{k:'CPF',v:'123.456.789-00'},{k:'Endereço',v:'Rua das Acácias, 128 — Santana'},{k:'Acessibilidade',v:'Usa bengala'},{k:'Responsável',v:'Carlos Souza (filho)'}] },
-  { id: 'carlos', emoji: '🛡️', nome: 'Carlos Souza', papel: 'Responsável · filho da Neusa', tel: '(11) 97777-5566',
+  { id: 'carlos', emoji: '🛡️', nome: 'Carlos Souza', papel: 'Responsável · filho da Neusa', tel: '(11) 97777-5566', cpf: '987.654.321-00',
     linhas: [{k:'Telefone',v:'(11) 97777-5566'},{k:'E-mail',v:'carlos@email.com'},{k:'Acompanha',v:'Neusa Aparecida'},{k:'Vínculo desde',v:'12/03/2026'}] },
-  { id: 'josue', emoji: '🚗', nome: 'Josué Ferreira', papel: 'Motorista · 6 anos de CNH', tel: '(11) 96666-2211',
+  { id: 'josue', emoji: '🚗', nome: 'Josué Ferreira', papel: 'Motorista · 6 anos de CNH', tel: '(11) 96666-2211', cpf: '456.789.123-00',
     linhas: [{k:'Veículo',v:'Chevrolet Spin 2019'},{k:'Placa',v:'ABC1D23'},{k:'Acessibilidade',v:'Rampa e porta ampla'},{k:'Avaliação',v:'4,9'},{k:'Status',v:'Aprovado'}] }
 ];
 
@@ -700,7 +712,8 @@ const FALA = {
   cDestino: 'Para onde você vai? Digite o endereço de destino ou escolha um destino frequente.',
   cRevisao: 'Confira sua corrida. Verifique com calma o endereço de saída e o destino antes de pedir.',
   cDone: 'Corrida solicitada. Seu pedido foi salvo e o aplicativo procuraria agora um motorista próximo.',
-  iAprovar: 'Uma pessoa quer acompanhar suas viagens. Toque em sim para permitir, ou agora não para recusar.'
+  iAprovar: 'Uma pessoa quer acompanhar suas viagens. Toque em sim para permitir, ou agora não para recusar.',
+  r2: 'Quem você vai acompanhar? Digite o CPF da conta da pessoa. Se não souber o CPF, pode procurar pelo telefone. Depois escolha o seu parentesco.'
 };
 
 class Component extends DCLogic {
@@ -711,7 +724,7 @@ class Component extends DCLogic {
     parentesco: 'Filho(a)', docs: [], antecedentes: false, fotos: [], acessVeic: ['Rampa ou elevador'],
     aprovado: null, erro: '', geoStatus: '', coords: null, corridaVoltar: 'welcome',
     f: { nome:'', tel:'', cpf:'', endereco:'', cidade:'', cOrigem:'', cDestino:'',
-         rNome:'', rTel:'', rEmail:'', rSenha:'', rIdosoTel:'',
+         rNome:'', rTel:'', rEmail:'', rSenha:'', rIdosoCpf:'', rIdosoTel:'',
          mNome:'', mCpf:'', mTel:'', mSenha:'', mCnh:'', mPlaca:'', mAno:'', mModelo:'', mBanco:'', mAgencia:'', mConta:'' }
   };
 
@@ -833,6 +846,28 @@ class Component extends DCLogic {
       {k:'Senha',v:'•••• (4 números)'}];
   }
 
+  so(v) { return String(v || '').replace(/\D/g, ''); }
+
+  // Busca a conta do idoso: CPF é o caminho principal, telefone é a alternativa.
+  // Sem backend — procura nos perfis semeados no localStorage.
+  buscarIdoso() {
+    const cpf = this.so(this.state.f.rIdosoCpf), tel = this.so(this.state.f.rIdosoTel);
+    let perfis = [];
+    try { perfis = JSON.parse(localStorage.getItem('rota60.perfis') || '[]'); } catch (e) {}
+    if (!perfis.length) perfis = PERFIS;
+    if (cpf.length === 11) {
+      const achado = perfis.find(x => this.so(x.cpf) === cpf);
+      if (achado) return { perfil: achado, via: 'pelo CPF' };
+      return null;
+    }
+    if (tel.length >= 10) {
+      const achado = perfis.find(x => this.so(x.tel) === tel);
+      if (achado) return { perfil: achado, via: 'pelo telefone' };
+      return null;
+    }
+    return null;
+  }
+
   vazio(...ks) { return ks.some(k => !String(this.state.f[k] || '').trim()); }
 
   proximo() {
@@ -859,7 +894,14 @@ class Component extends DCLogic {
     if (t === 'cRevisao') { this.salvarCorrida(); return this.go('cDone'); }
     if (t === 'cDone' || t === 'rDone' || t === 'mDone') return this.reiniciar();
     if (t === 'r1') { if (this.vazio('rNome','rTel','rEmail','rSenha')) return erro('Preencha todos os campos.'); return this.go('r2'); }
-    if (t === 'r2') { if (this.vazio('rIdosoTel')) return erro('Digite o telefone da conta do idoso.'); return this.go('r3'); }
+    if (t === 'r2') {
+      const cpf = this.so(s.f.rIdosoCpf), tel = this.so(s.f.rIdosoTel);
+      if (!cpf && !tel) return erro('Digite o CPF da conta do idoso.');
+      if (cpf && cpf.length !== 11) return erro('O CPF precisa ter 11 números.');
+      if (!cpf && tel.length < 10) return erro('Digite o CPF, ou um telefone completo com DDD.');
+      if (!this.buscarIdoso()) return erro('Não encontramos essa conta. Confira os números ou tente pelo telefone.');
+      return this.go('r3');
+    }
     if (t === 'r3') return this.go('iAprovar');
     if (t === 'm1') { if (this.vazio('mNome','mCpf','mTel','mSenha')) return erro('Preencha todos os campos.'); if (!s.selfie) return erro('Falta a selfie de verificação.'); return this.go('m2'); }
     if (t === 'm2') { if (this.vazio('mCnh')) return erro('Informe o número da CNH.'); if (s.docs.length < 2) return erro('Envie a CNH e o documento do veículo.'); if (!s.antecedentes) return erro('É preciso autorizar a consulta de antecedentes.'); return this.go('m3'); }
@@ -925,7 +967,10 @@ class Component extends DCLogic {
     }));
 
     const respNome = f.rNome || 'Carlos Souza';
-    const idosoDemo = PERFIS.find(p => p.id === 'neusa');
+    const achado = this.buscarIdoso();
+    // quem o responsavel acompanha: o perfil encontrado; sem busca ainda, a Neusa do demo
+    const idosoDemo = (achado && achado.perfil) || PERFIS.find(p => p.id === 'neusa');
+    const buscou = this.so(f.rIdosoCpf).length === 11 || this.so(f.rIdosoTel).length >= 10;
 
     return {
       f, h, telaAtual: titulos[t] || t, larguraTela: 412, alturaTela: 892,
@@ -991,8 +1036,10 @@ class Component extends DCLogic {
       resumoIdoso: this.resumoIdoso(),
       parentescos: PARENTESCOS.map(p => ({ label: p, pick: () => this.setState({ parentesco: p }),
         borda: s.parentesco === p ? on.border : off.border, fundo: s.parentesco === p ? on.background : off.background })),
-      contaEncontrada: String(f.rIdosoTel || '').replace(/\D/g, '').length >= 10,
+      contaEncontrada: !!achado,
+      contaNaoEncontrada: buscou && !achado,
       contaEncontradaNome: idosoDemo.nome,
+      contaEncontradaVia: achado ? achado.via : '',
       respNome,
       verTelaIdoso: () => this.go('iAprovar'),
       aprovar: () => this.setState({ aprovado: true, tela: 'rDone', erro: '' }),
@@ -1003,6 +1050,7 @@ class Component extends DCLogic {
         : 'Agora você acompanha as viagens de ' + idosoDemo.nome + ' em tempo real.',
       resumoResp: [{k:'Responsável',v:respNome},{k:'Telefone',v:f.rTel||'—'},{k:'E-mail',v:f.rEmail||'—'},
         {k:'Parentesco',v:s.parentesco},{k:'Acompanha',v:idosoDemo.nome},
+        {k:'CPF do idoso',v:f.rIdosoCpf||idosoDemo.cpf||'—'},
         {k:'Situação',v:s.aprovado === false ? 'Aguardando nova tentativa' : 'Ativo'}],
       docsUpload: [{k:'cnh',label:'Foto da CNH',icone:'🪪'},{k:'crlv',label:'Documento do veículo (CRLV)',icone:'📄'}].map(d => {
         const ok = s.docs.indexOf(d.k) >= 0;

@@ -121,7 +121,7 @@ telas sem percorrer o fluxo.
 A origem pode ser a casa cadastrada, a localização atual do aparelho (quando o navegador permite) ou um endereço digitado. O destino pode ser digitado ou escolhido entre destinos frequentes de demonstração. Antes de confirmar, o usuário revisa os dois endereços e a necessidade de acessibilidade.
 
 **Responsável** — 5 telas
-`Dados pessoais → Convite pelo telefone do idoso → Aguardando → Aprovação (na tela do idoso) → Vínculo concluído`
+`Dados pessoais → Convite pelo CPF do idoso (telefone como alternativa) → Aguardando → Aprovação (na tela do idoso) → Vínculo concluído`
 
 **Motorista** — 5 telas
 `Dados + selfie → CNH, CRLV e antecedentes → Veículo + 3 fotos + acessibilidade → Dados bancários → Em análise`
