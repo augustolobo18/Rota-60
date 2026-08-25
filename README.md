@@ -4,7 +4,7 @@
 
 # Rota 60
 
-**Protótipo navegável dos fluxos de cadastro** — mobilidade acessível para pessoas idosas.
+**Protótipo navegável de cadastro e solicitação de corrida** — mobilidade acessível para pessoas idosas.
 
 ![status](https://img.shields.io/badge/status-prot%C3%B3tipo-ff7a1a)
 ![stack](https://img.shields.io/badge/stack-HTML%20%2B%20React%2018%20(runtime)-ff7a1a)
@@ -18,11 +18,11 @@
 ## Sobre o projeto
 
 O **Rota 60** é um serviço de caronas pensado para o público idoso. Este repositório contém o
-**protótipo navegável das telas de cadastro** — 15 telas cobrindo três perfis de usuário — usado para
+**protótipo navegável das telas de cadastro e solicitação de corrida** — 19 telas cobrindo três perfis de usuário e o primeiro fluxo de mobilidade — usado para
 validar fluxo, linguagem e acessibilidade antes da implementação do aplicativo real.
 
 O protótipo é **funcional**: os formulários validam campos, navegam entre etapas, alternam tema e
-persistem perfis criados no `localStorage`. Não há backend.
+persistem perfis e pedidos de corrida no `localStorage`. Não há backend.
 
 ### Decisões de acessibilidade
 
@@ -107,7 +107,7 @@ Ao carregar, a página exibe uma barra de controles acima do frame do dispositiv
 | **Tema claro / escuro** | Alterna o tema (a escolha persiste no `localStorage`) |
 | **Reiniciar** | Limpa o formulário e volta à tela inicial |
 
-Abaixo do frame há um **mapa de telas** numerado que permite pular direto para qualquer uma das 15
+Abaixo do frame há um **mapa de telas** numerado que permite pular direto para qualquer uma das 19
 telas sem percorrer o fluxo.
 
 ### Fluxos implementados
@@ -115,8 +115,13 @@ telas sem percorrer o fluxo.
 **Idoso** — 5 telas
 `Boas-vindas → Identificação → Endereço + acessibilidade → Foto + senha → Conta criada`
 
+**Solicitação de corrida** — 4 telas
+`Endereço de saída → Destino → Revisão → Corrida solicitada`
+
+A origem pode ser a casa cadastrada, a localização atual do aparelho (quando o navegador permite) ou um endereço digitado. O destino pode ser digitado ou escolhido entre destinos frequentes de demonstração. Antes de confirmar, o usuário revisa os dois endereços e a necessidade de acessibilidade.
+
 **Responsável** — 5 telas
-`Dados pessoais → Convite pelo telefone do idoso → Aguardando → Aprovação (na tela do idoso) → Vínculo concluído`
+`Dados pessoais → Convite pelo CPF do idoso (telefone como alternativa) → Aguardando → Aprovação (na tela do idoso) → Vínculo concluído`
 
 **Motorista** — 5 telas
 `Dados + selfie → CNH, CRLV e antecedentes → Veículo + 3 fotos + acessibilidade → Dados bancários → Em análise`
@@ -182,14 +187,16 @@ imagem desapareça sobre a superfície da tela.
 ## Estado atual e limitações
 
 - **Sem backend.** Nenhum dado sai do navegador; a persistência é `localStorage`
-  (`rota60.perfis`, `rota60.tema`).
+  (`rota60.perfis`, `rota60.tema`, `rota60.corridas`).
 - **Uploads simulados.** Foto, selfie, CNH, CRLV e fotos do veículo são alternados por toque —
   nenhum arquivo é realmente enviado.
 - **Validação básica.** Campos obrigatórios e confirmação de senha; não há validação de CPF,
   CNH ou placa.
 - **Dependência de CDN.** Sem internet, a página não renderiza.
-- **Escopo restrito ao cadastro.** Busca de corrida, mapa, pagamento e acompanhamento não fazem
-  parte deste protótipo.
+- **Solicitação de corrida ainda é simulada.** O pedido é salvo no navegador, mas não há despacho real para motoristas.
+- **Sem geocodificação/mapa.** A localização atual pode usar a API de geolocalização do navegador, porém ainda não há conversão de coordenadas para endereço nem traçado de rota.
+- **Sem preço/pagamento.** O protótipo não calcula tarifa nem processa pagamento.
+- **Sem acompanhamento em tempo real.** Busca de motorista e acompanhamento da viagem ainda são estados simulados.
 
 ---
 
@@ -199,7 +206,9 @@ imagem desapareça sobre a superfície da tela.
 - [ ] Validação de CPF, CNH e placa (Mercosul)
 - [ ] Máscaras de entrada para telefone, CPF e CEP
 - [ ] Integração com API de CEP para preenchimento de endereço
-- [ ] Backend de autenticação e persistência real
+- [ ] Backend de autenticação, persistência real e despacho de corridas
+- [ ] Integração com geocodificação/mapas e sugestões reais de endereço
+- [ ] Integração com provedor de mobilidade para estimativa, solicitação e acompanhamento de corrida
 - [ ] Auditoria de acessibilidade com leitores de tela (TalkBack / VoiceOver)
 - [ ] Migração do protótipo para React Native ou PWA
 
