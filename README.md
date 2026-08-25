@@ -46,12 +46,6 @@ mudar cores.
 
 ---
 
-## ⚠️ Antes de começar: o conteúdo está no branch `cadastro`
-
-O branch `main` contém apenas este README. **O protótipo vive no branch `cadastro`.**
-
----
-
 ## Como inicializar
 
 ### Pré-requisitos
@@ -70,16 +64,13 @@ O branch `main` contém apenas este README. **O protótipo vive no branch `cadas
 git clone https://github.com/augustolobo18/Rota-60.git
 cd Rota-60
 
-# 2. Vá para o branch com o protótipo
-git checkout cadastro
-
-# 3. Suba um servidor HTTP local (escolha uma opção)
+# 2. Suba um servidor HTTP local (escolha uma opção)
 python3 -m http.server 5500
 #   ou
 npx serve -l 5500
 ```
 
-### 4. Abra no navegador
+### 3. Abra no navegador
 
 ```
 http://localhost:5500/Rota60%20Cadastro.dc.html
@@ -202,7 +193,6 @@ imagem desapareça sobre a superfície da tela.
 
 ## Roadmap
 
-- [ ] Fazer merge do branch `cadastro` em `main`
 - [ ] Validação de CPF, CNH e placa (Mercosul)
 - [ ] Máscaras de entrada para telefone, CPF e CEP
 - [ ] Integração com API de CEP para preenchimento de endereço
@@ -217,14 +207,15 @@ imagem desapareça sobre a superfície da tela.
 ## Contribuindo
 
 ```bash
-git checkout cadastro
+git checkout main
+git pull
 git checkout -b feat/minha-alteracao
 # ... suas alterações ...
 git commit -m "feat: descrição da alteração"
 git push origin feat/minha-alteracao
 ```
 
-Abra o Pull Request com o branch `cadastro` como base. Commits seguem
+Abra o Pull Request com o branch `main` como base. Commits seguem
 [Conventional Commits](https://www.conventionalcommits.org/pt-br/).
 
 ---
