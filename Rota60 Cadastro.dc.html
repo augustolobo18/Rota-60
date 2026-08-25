@@ -68,9 +68,9 @@ input::placeholder{color:var(--r60-hint)}
 <div class="r60-doc">
   <div style="display:flex;align-items:center;gap:16px;margin-bottom:18px">
     <img src="assets/logo-escuro.png" alt="Rota60" width="72" height="72" style="width:72px;height:72px;mix-blend-mode:lighten">
-    <p class="r60-k" style="margin:0">Rota60 · fluxos de cadastro · protótipo navegável</p>
+    <p class="r60-k" style="margin:0">Rota60 · cadastro + solicitação de corrida · protótipo navegável</p>
   </div>
-  <h1 class="r60-h">Cadastro do idoso, do responsável e do motorista</h1>
+  <h1 class="r60-h">Cadastro e solicitação de corrida acessível</h1>
   <p class="r60-p">Base visual: a logo do Rota60 — laranja <span style="font-family:ui-monospace,monospace;color:#ff7a1a">#ff7a1a</span> sobre preto ou branco — com a estrutura de tokens, estados e formas do <strong style="color:#f0efed;font-weight:500">Nocturne</strong>. Adaptei a densidade do sistema para o público idoso: corpo de texto a partir de 22px, alvos de toque de 64–76px e um campo por linha — o resto (cores, raios, acento) segue os tokens do sistema.</p>
   <p class="r60-p">Premissas que assumi: <strong style="color:#f0efed;font-weight:500">(1)</strong> cadastro do idoso em 3 telas, agrupando os campos escolhidos (identificação → endereço e acessibilidade → foto e senha); <strong style="color:#f0efed;font-weight:500">(2)</strong> senha é um código de 4 dígitos digitado em teclado grande; <strong style="color:#f0efed;font-weight:500">(3)</strong> o responsável convida pelo telefone e o idoso aprova na própria tela; <strong style="color:#f0efed;font-weight:500">(4)</strong> motorista tem 4 etapas por causa dos documentos. Sem backend: os perfis fictícios ficam no código e no armazenamento local.</p>
 
@@ -311,6 +311,102 @@ input::placeholder{color:var(--r60-hint)}
               </div>
             </sc-if>
 
+            <sc-if value="{{ sCOrigem }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div>
+                  <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0 0 8px">Onde vamos buscar você?</h2>
+                  <p style="margin:0;font-size:20px;color:var(--r60-muted)">Escolha uma opção grande abaixo ou digite outro endereço.</p>
+                </div>
+                <button onClick="{{ escolherCasa }}" aria-pressed="{{ casaSelecionada }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:18px;min-height:92px;border-radius:var(--r60-radius);border:{{ casaBorda }};background:{{ casaFundo }};color:var(--r60-text);cursor:pointer">
+                  <span style="flex:none;width:54px;height:54px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:27px">🏠</span>
+                  <span style="flex:1"><span style="display:block;font:500 24px/1.2 Inter,sans-serif">Minha casa</span><span style="display:block;font-size:18px;color:var(--r60-muted);margin-top:4px">{{ enderecoCasa }}</span></span>
+                  <span style="font-size:26px;color:var(--r60-accent)">{{ casaMarca }}</span>
+                </button>
+                <button onClick="{{ usarLocalizacao }}" aria-pressed="{{ localSelecionada }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:18px;min-height:92px;border-radius:var(--r60-radius);border:{{ localBorda }};background:{{ localFundo }};color:var(--r60-text);cursor:pointer">
+                  <span style="flex:none;width:54px;height:54px;border-radius:50%;background:var(--r60-surface-2);display:flex;align-items:center;justify-content:center;font-size:27px">📍</span>
+                  <span style="flex:1"><span style="display:block;font:500 24px/1.2 Inter,sans-serif">Minha localização atual</span><span style="display:block;font-size:18px;color:var(--r60-muted);margin-top:4px">O aparelho pode pedir permissão de localização.</span></span>
+                  <span style="font-size:26px;color:var(--r60-accent)">{{ localMarca }}</span>
+                </button>
+                <div aria-live="polite" style="min-height:24px;font-size:18px;color:var(--r60-hint)">{{ geoStatus }}</div>
+                <div>
+                  <label for="c-origem" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Outro endereço de saída</label>
+                  <input id="c-origem" autocomplete="street-address" value="{{ f.cOrigem }}" onChange="{{ h.cOrigem }}" placeholder="Rua, número e bairro" style="width:100%;min-height:76px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                  <div style="font-size:17px;color:var(--r60-hint);margin-top:8px">Confira o número antes de continuar.</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sCDestino }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div>
+                  <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0 0 8px">Para onde você vai?</h2>
+                  <p style="margin:0;font-size:20px;color:var(--r60-muted)">Digite o endereço ou escolha um destino frequente.</p>
+                </div>
+                <div>
+                  <label for="c-destino" style="display:block;font-size:20px;color:var(--r60-muted);margin-bottom:8px">Endereço de destino</label>
+                  <input id="c-destino" autocomplete="street-address" value="{{ f.cDestino }}" onChange="{{ h.cDestino }}" placeholder="Ex.: Avenida Braz Leme, 1200" style="width:100%;min-height:76px;padding:14px 18px;font-size:24px;color:var(--r60-text);background:var(--r60-surface);border:1px solid var(--r60-line);border-radius:var(--r60-radius);caret-color:var(--r60-accent)">
+                </div>
+                <div>
+                  <div style="font:600 13px/1 Inter,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--r60-hint);margin-bottom:12px">Destinos frequentes</div>
+                  <div style="display:flex;flex-direction:column;gap:12px">
+                    <sc-for list="{{ destinosFrequentes }}" as="d" hint-placeholder-count="3">
+                      <button onClick="{{ d.escolher }}" aria-pressed="{{ d.selecionado }}" style="display:flex;align-items:center;gap:14px;text-align:left;padding:16px;min-height:82px;border-radius:12px;border:{{ d.borda }};background:{{ d.fundo }};color:var(--r60-text);cursor:pointer">
+                        <span style="flex:none;width:48px;height:48px;border-radius:50%;background:var(--r60-surface-2);display:flex;align-items:center;justify-content:center;font-size:24px">{{ d.icone }}</span>
+                        <span style="flex:1"><span style="display:block;font:500 22px/1.2 Inter,sans-serif">{{ d.nome }}</span><span style="display:block;font-size:17px;color:var(--r60-muted);margin-top:3px">{{ d.endereco }}</span></span>
+                        <span style="font-size:24px;color:var(--r60-accent)">{{ d.marca }}</span>
+                      </button>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sCRevisao }}">
+              <div style="display:flex;flex-direction:column;gap:20px">
+                <div>
+                  <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0 0 8px">Confira sua corrida</h2>
+                  <p style="margin:0;font-size:20px;color:var(--r60-muted)">Leia os endereços com calma. Você pode voltar e corrigir.</p>
+                </div>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:8px 18px">
+                  <div style="display:flex;gap:14px;padding:16px 0;border-bottom:1px solid var(--r60-line)">
+                    <span style="flex:none;width:36px;height:36px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:18px">●</span>
+                    <div style="flex:1"><div style="font-size:17px;color:var(--r60-muted);margin-bottom:3px">Saída</div><div style="font-size:22px;line-height:1.35">{{ corridaOrigem }}</div></div>
+                    <button onClick="{{ editarOrigem }}" aria-label="Alterar endereço de saída" style="flex:none;min-width:84px;height:64px;border-radius:10px;border:1px solid var(--r60-line);background:transparent;color:var(--r60-accent);font-size:18px;cursor:pointer">Editar</button>
+                  </div>
+                  <div style="display:flex;gap:14px;padding:16px 0">
+                    <span style="flex:none;width:36px;height:36px;border-radius:10px;background:var(--r60-accent);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--r60-bg)">■</span>
+                    <div style="flex:1"><div style="font-size:17px;color:var(--r60-muted);margin-bottom:3px">Destino</div><div style="font-size:22px;line-height:1.35">{{ corridaDestino }}</div></div>
+                    <button onClick="{{ editarDestino }}" aria-label="Alterar endereço de destino" style="flex:none;min-width:84px;height:64px;border-radius:10px;border:1px solid var(--r60-line);background:transparent;color:var(--r60-accent);font-size:18px;cursor:pointer">Editar</button>
+                  </div>
+                </div>
+                <div style="border:1px solid var(--r60-line);border-radius:var(--r60-radius);padding:18px">
+                  <div style="font-size:22px;margin-bottom:6px">Ajuda já informada</div>
+                  <div style="font-size:19px;color:var(--r60-muted)">{{ corridaAcessibilidade }}</div>
+                  <div style="font-size:17px;color:var(--r60-hint);margin-top:8px">O pedido prioriza um motorista compatível com essa necessidade.</div>
+                </div>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-accent-deep);padding:16px 18px">
+                  <div style="font-size:18px;color:var(--r60-accent-light)">Protótipo sem integração de pagamento ou mapa</div>
+                  <div style="font-size:18px;color:var(--r60-muted);margin-top:5px">O preço e o tempo reais serão exibidos quando o serviço de mobilidade estiver conectado.</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ sCDone }}">
+              <div style="display:flex;flex-direction:column;gap:22px">
+                <div style="width:104px;height:104px;border-radius:50%;background:var(--r60-accent-soft);display:flex;align-items:center;justify-content:center;font-size:48px;color:var(--r60-accent-light)">🚗</div>
+                <h2 style="font:500 36px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Corrida solicitada</h2>
+                <p style="margin:0;font-size:23px;color:var(--r60-muted)">Seu pedido foi salvo. Em uma versão conectada, agora procuraríamos um motorista próximo.</p>
+                <div style="border-radius:var(--r60-radius);background:var(--r60-surface);padding:8px 18px">
+                  <div style="padding:14px 0;border-bottom:1px solid var(--r60-line)"><div style="font-size:17px;color:var(--r60-muted)">Saída</div><div style="font-size:21px;margin-top:3px">{{ corridaOrigem }}</div></div>
+                  <div style="padding:14px 0"><div style="font-size:17px;color:var(--r60-muted)">Destino</div><div style="font-size:21px;margin-top:3px">{{ corridaDestino }}</div></div>
+                </div>
+                <div role="status" style="display:flex;align-items:center;gap:14px;border:2px solid var(--r60-accent);border-radius:var(--r60-radius);background:var(--r60-accent-deep);padding:18px">
+                  <span aria-hidden="true" style="font-size:28px">⏳</span>
+                  <div><div style="font:500 22px/1.2 Inter,sans-serif">Procurando motorista</div><div style="font-size:18px;color:var(--r60-muted);margin-top:4px">Simulação do próximo passo do aplicativo.</div></div>
+                </div>
+              </div>
+            </sc-if>
+
             <sc-if value="{{ sR1 }}">
               <div style="display:flex;flex-direction:column;gap:20px">
                 <h2 style="font:500 34px/1.15 Inter,sans-serif;letter-spacing:-.02em;margin:0">Seus dados</h2>
@@ -540,7 +636,7 @@ input::placeholder{color:var(--r60-hint)}
           <sc-if value="{{ temAcao }}" hint-placeholder-val="{{ true }}">
             <div style="flex:none;padding:12px 20px 16px;border-top:1px solid var(--r60-line);background:var(--r60-bg)">
               <sc-if value="{{ erro }}">
-                <div style="font-size:19px;color:var(--r60-danger);margin-bottom:10px">{{ erro }}</div>
+                <div role="alert" style="font-size:19px;color:var(--r60-danger);margin-bottom:10px">{{ erro }}</div>
               </sc-if>
               <button onClick="{{ avancar }}" style="width:100%;min-height:80px;border-radius:14px;border:2px solid var(--r60-accent);background:{{ acaoFundo }};color:var(--r60-accent);font:500 27px/1.2 Inter,sans-serif;cursor:pointer">{{ acaoLabel }}</button>
             </div>
@@ -562,7 +658,7 @@ input::placeholder{color:var(--r60-hint)}
       <div style="font:400 12px/1.6 Inter,sans-serif;color:var(--r60-hint);border-top:1px solid rgba(240,239,237,.12);padding-top:14px">
         Trocar cores: bloco <span style="font-family:ui-monospace,monospace;color:#b4b2ae">--r60-*</span> no topo do arquivo. Logo: só o caminho em <span style="font-family:ui-monospace,monospace;color:#b4b2ae">--r60-logo</span> (um por tema). Perfis fictícios: constante <span style="font-family:ui-monospace,monospace;color:#b4b2ae">PERFIS</span> na lógica, espelhada em <span style="font-family:ui-monospace,monospace;color:#b4b2ae">localStorage</span>.
       </div>
-      <div style="font:400 12px/1.6 Inter,sans-serif;color:var(--r60-hint)">Próximos passos possíveis: tela de login, pedido de carona, acompanhamento da viagem pelo responsável.</div>
+      <div style="font:400 12px/1.6 Inter,sans-serif;color:var(--r60-hint)">Próximos passos possíveis: integração com mapa/geocodificação, estimativa real de preço, acompanhamento da viagem e comunicação com o motorista.</div>
     </div>
   </div>
 </div>
@@ -582,9 +678,15 @@ const ACESS = ['Não preciso de ajuda','Uso bengala ou andador','Uso cadeira de 
 const ACESS_VEIC = ['Rampa ou elevador','Porta ampla / entrada baixa','Espaço para cadeira de rodas','Apoio de braço no banco'];
 const PARENTESCOS = ['Filho(a)','Neto(a)','Cônjuge','Cuidador(a)'];
 const FOTOS_CARRO = [{k:'frente',label:'Frente',icone:'🚙'},{k:'lado',label:'Lateral',icone:'🚘'},{k:'interior',label:'Interior',icone:'🪑'}];
+const DESTINOS_FREQUENTES = [
+  { nome:'Clínica Vida', endereco:'Av. Braz Leme, 1200 — Santana', icone:'🏥' },
+  { nome:'Mercado do bairro', endereco:'Rua Alfredo Pujol, 470 — Santana', icone:'🛒' },
+  { nome:'Casa do Carlos', endereco:'Rua Amaral Gama, 55 — Santana', icone:'🏠' }
+];
 
 const PASSO = { i1:'Passo 1 de 3', i2:'Passo 2 de 3', i3:'Passo 3 de 3',
-  iUnica:'Cadastro', r1:'Passo 1 de 3', r2:'Passo 2 de 3', r3:'Passo 3 de 3',
+  iUnica:'Cadastro', cOrigem:'Corrida · 1 de 3', cDestino:'Corrida · 2 de 3', cRevisao:'Corrida · 3 de 3',
+  r1:'Passo 1 de 3', r2:'Passo 2 de 3', r3:'Passo 3 de 3',
   m1:'Etapa 1 de 4', m2:'Etapa 2 de 4', m3:'Etapa 3 de 4', m4:'Etapa 4 de 4' };
 
 const FALA = {
@@ -594,6 +696,10 @@ const FALA = {
   i3: 'Agora sua foto e sua senha de quatro números.',
   iUnica: 'Preencha seus dados. Vá descendo a tela com o dedo até o fim.',
   iDone: 'Pronto. Sua conta está criada e você já pode pedir uma carona.',
+  cOrigem: 'Onde vamos buscar você? Escolha sua casa, sua localização atual, ou digite outro endereço de saída.',
+  cDestino: 'Para onde você vai? Digite o endereço de destino ou escolha um destino frequente.',
+  cRevisao: 'Confira sua corrida. Verifique com calma o endereço de saída e o destino antes de pedir.',
+  cDone: 'Corrida solicitada. Seu pedido foi salvo e o aplicativo procuraria agora um motorista próximo.',
   iAprovar: 'Uma pessoa quer acompanhar suas viagens. Toque em sim para permitir, ou agora não para recusar.'
 };
 
@@ -603,8 +709,8 @@ class Component extends DCLogic {
     acess: ['Uso bengala ou andador'], foto: false, selfie: false,
     senha: '', senhaConf: '', senhaEtapa: 'criar', senhaErro: '',
     parentesco: 'Filho(a)', docs: [], antecedentes: false, fotos: [], acessVeic: ['Rampa ou elevador'],
-    aprovado: null, erro: '',
-    f: { nome:'', tel:'', cpf:'', endereco:'', cidade:'',
+    aprovado: null, erro: '', geoStatus: '', coords: null, corridaVoltar: 'welcome',
+    f: { nome:'', tel:'', cpf:'', endereco:'', cidade:'', cOrigem:'', cDestino:'',
          rNome:'', rTel:'', rEmail:'', rSenha:'', rIdosoTel:'',
          mNome:'', mCpf:'', mTel:'', mSenha:'', mCnh:'', mPlaca:'', mAno:'', mModelo:'', mBanco:'', mAgencia:'', mConta:'' }
   };
@@ -626,7 +732,7 @@ class Component extends DCLogic {
   // tema padrão: prop temaInicial, senão escuro (base do Nocturne)
   tema() { return this.state.tema || this.props.temaInicial || 'escuro'; }
 
-  set(k, v) { this.setState(s => ({ f: Object.assign({}, s.f, { [k]: v }), erro: '' })); }
+  set(k, v) { this.setState(s => Object.assign({ f: Object.assign({}, s.f, { [k]: v }), erro: '' }, k === 'cOrigem' ? { coords: null, geoStatus: '' } : {})); }
   go(t) { this.setState({ tela: t, erro: '' }); }
   toggleIn(key, v) {
     this.setState(s => {
@@ -668,6 +774,57 @@ class Component extends DCLogic {
     } catch (e) {}
   }
 
+  enderecoCasa() {
+    const f = this.state.f;
+    if (String(f.endereco || '').trim()) return f.endereco + (f.cidade ? ' — ' + f.cidade : '');
+    return 'Rua das Acácias, 128 — Santana';
+  }
+
+  iniciarCorrida(voltarPara = 'welcome') {
+    this.setState(s => ({
+      tela: 'cOrigem', erro: '', geoStatus: '', coords: null, corridaVoltar: voltarPara,
+      f: Object.assign({}, s.f, { cOrigem: '', cDestino: '' })
+    }));
+  }
+
+  escolherCasa() {
+    const endereco = this.enderecoCasa();
+    this.setState(s => ({ f: Object.assign({}, s.f, { cOrigem: endereco }), geoStatus: '', coords: null, erro: '' }));
+  }
+
+  usarLocalizacaoAtual() {
+    if (!navigator.geolocation) {
+      this.setState({ geoStatus: 'Este navegador não oferece localização. Digite o endereço abaixo.' });
+      return;
+    }
+    this.setState({ geoStatus: 'Buscando sua localização…', erro: '' });
+    navigator.geolocation.getCurrentPosition(
+      pos => this.setState(s => ({
+        f: Object.assign({}, s.f, { cOrigem: 'Minha localização atual' }),
+        coords: { lat: pos.coords.latitude, lng: pos.coords.longitude },
+        geoStatus: 'Localização atual selecionada.', erro: ''
+      })),
+      () => this.setState({ geoStatus: 'Não conseguimos acessar sua localização. Você pode escolher sua casa ou digitar o endereço.' }),
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 60000 }
+    );
+  }
+
+  salvarCorrida() {
+    try {
+      const atuais = JSON.parse(localStorage.getItem('rota60.corridas') || '[]');
+      atuais.push({
+        id: 'corrida-' + Date.now(),
+        criadaEm: new Date().toISOString(),
+        origem: this.state.f.cOrigem,
+        destino: this.state.f.cDestino,
+        acessibilidade: this.state.acess.slice(),
+        coordsOrigem: this.state.coords,
+        status: 'solicitada'
+      });
+      localStorage.setItem('rota60.corridas', JSON.stringify(atuais));
+    } catch (e) {}
+  }
+
   resumoIdoso() {
     const f = this.state.f;
     return [{k:'Nome',v:f.nome||'—'},{k:'Telefone',v:f.tel||'—'},{k:'CPF',v:f.cpf||'—'},
@@ -695,7 +852,12 @@ class Component extends DCLogic {
       if (s.senha.length < 4) return erro('Crie a senha de 4 números.');
       this.salvarIdoso(); return this.go('iDone');
     }
-    if (t === 'iDone' || t === 'rDone' || t === 'mDone' || t === 'demo') return this.reiniciar();
+    if (t === 'iDone') return this.iniciarCorrida('iDone');
+    if (t === 'demo') { if (s.demo && s.demo.id === 'neusa') return this.iniciarCorrida('demo'); return this.reiniciar(); }
+    if (t === 'cOrigem') { if (this.vazio('cOrigem')) return erro('Escolha ou digite o endereço onde vamos buscar você.'); return this.go('cDestino'); }
+    if (t === 'cDestino') { if (this.vazio('cDestino')) return erro('Escolha ou digite o endereço para onde você vai.'); return this.go('cRevisao'); }
+    if (t === 'cRevisao') { this.salvarCorrida(); return this.go('cDone'); }
+    if (t === 'cDone' || t === 'rDone' || t === 'mDone') return this.reiniciar();
     if (t === 'r1') { if (this.vazio('rNome','rTel','rEmail','rSenha')) return erro('Preencha todos os campos.'); return this.go('r2'); }
     if (t === 'r2') { if (this.vazio('rIdosoTel')) return erro('Digite o telefone da conta do idoso.'); return this.go('r3'); }
     if (t === 'r3') return this.go('iAprovar');
@@ -706,7 +868,9 @@ class Component extends DCLogic {
   }
 
   voltar() {
+    if (this.state.tela === 'cOrigem') return this.go(this.state.corridaVoltar || 'welcome');
     const back = { i1:'welcome', i2:'i1', i3:'i2', iUnica:'welcome', iDone:'welcome', demo:'welcome',
+      cDestino:'cOrigem', cRevisao:'cDestino', cDone:'welcome',
       r1:'welcome', r2:'r1', r3:'r2', iAprovar:'r3', rDone:'welcome',
       m1:'welcome', m2:'m1', m3:'m2', m4:'m3', mDone:'welcome' };
     this.go(back[this.state.tela] || 'welcome');
@@ -714,7 +878,7 @@ class Component extends DCLogic {
 
   reiniciar() {
     this.setState({ tela:'welcome', demo:null, foto:false, selfie:false, senha:'', senhaConf:'', senhaEtapa:'criar',
-      senhaErro:'', docs:[], antecedentes:false, fotos:[], aprovado:null, erro:'',
+      senhaErro:'', docs:[], antecedentes:false, fotos:[], aprovado:null, erro:'', geoStatus:'', coords:null, corridaVoltar:'welcome',
       f: Object.keys(this.state.f).reduce((o,k)=>(o[k]='',o), {}) });
   }
 
@@ -726,12 +890,15 @@ class Component extends DCLogic {
     Object.keys(f).forEach(k => { h[k] = e => this.set(k, e.target.value); });
 
     const acoes = { i1:'Continuar', i2:'Continuar', i3:'Criar minha conta', iUnica:'Criar minha conta',
-      iDone:'Voltar ao início', r1:'Continuar', r2:'Enviar convite', r3:'Continuar',
+      iDone:'Pedir uma corrida', cOrigem:'Escolher destino', cDestino:'Revisar corrida', cRevisao:'Confirmar e pedir corrida',
+      cDone:'Voltar ao início', r1:'Continuar', r2:'Enviar convite', r3:'Continuar',
       m1:'Continuar', m2:'Continuar', m3:'Continuar', m4:'Enviar cadastro',
-      rDone:'Voltar ao início', mDone:'Voltar ao início', demo:'Voltar ao início' };
+      rDone:'Voltar ao início', mDone:'Voltar ao início',
+      demo:(s.demo && s.demo.id === 'neusa') ? 'Pedir uma corrida' : 'Voltar ao início' };
 
     const titulos = { welcome:'Início', demo:'Perfil de teste', i1:'Idoso · dados', i2:'Idoso · endereço',
       i3:'Idoso · foto e senha', iUnica:'Idoso · tela única', iDone:'Idoso · concluído',
+      cOrigem:'Corrida · saída', cDestino:'Corrida · destino', cRevisao:'Corrida · conferir', cDone:'Corrida · solicitada',
       r1:'Responsável · dados', r2:'Responsável · vínculo', r3:'Responsável · convite enviado',
       iAprovar:'Idoso · aprovar vínculo', rDone:'Responsável · concluído',
       m1:'Motorista · dados', m2:'Motorista · documentos', m3:'Motorista · veículo',
@@ -740,10 +907,11 @@ class Component extends DCLogic {
     const mapaDef = [['welcome','1','Escolha do perfil'],
       [s.fluxo === 'passo' ? 'i1' : 'iUnica','2','Idoso · dados'],
       ['i2','3','Idoso · endereço + acessibilidade'],['i3','4','Idoso · foto + senha'],['iDone','5','Idoso · conta criada'],
-      ['r1','6','Responsável · dados'],['r2','7','Responsável · convidar idoso'],['r3','8','Responsável · aguardando'],
-      ['iAprovar','9','Idoso · aprova o vínculo'],['rDone','10','Vínculo concluído'],
-      ['m1','11','Motorista · dados'],['m2','12','Motorista · documentos'],['m3','13','Motorista · veículo'],
-      ['m4','14','Motorista · pagamento'],['mDone','15','Motorista · em análise']];
+      ['cOrigem','6','Corrida · escolher saída'],['cDestino','7','Corrida · escolher destino'],['cRevisao','8','Corrida · conferir'],['cDone','9','Corrida · solicitada'],
+      ['r1','10','Responsável · dados'],['r2','11','Responsável · convidar idoso'],['r3','12','Responsável · aguardando'],
+      ['iAprovar','13','Idoso · aprova o vínculo'],['rDone','14','Vínculo concluído'],
+      ['m1','15','Motorista · dados'],['m2','16','Motorista · documentos'],['m3','17','Motorista · veículo'],
+      ['m4','18','Motorista · pagamento'],['mDone','19','Motorista · em análise']];
     const mapa = mapaDef
       .filter(m => !(s.fluxo === 'unica' && (m[0] === 'i2' || m[0] === 'i3')))
       .map(m => ({ cod: m[1], label: m[2], ir: () => this.go(m[0]),
@@ -766,10 +934,12 @@ class Component extends DCLogic {
       temaLabel: this.tema() === 'escuro' ? 'Tema claro' : 'Tema escuro',
       trocarTema: () => this.trocarTema(),
       sWelcome: t === 'welcome', sDemo: t === 'demo', sI1: t === 'i1', sI2: t === 'i2', sI3: t === 'i3',
-      sIUnica: t === 'iUnica', sIDone: t === 'iDone', sR1: t === 'r1', sR2: t === 'r2', sR3: t === 'r3',
+      sIUnica: t === 'iUnica', sIDone: t === 'iDone',
+      sCOrigem: t === 'cOrigem', sCDestino: t === 'cDestino', sCRevisao: t === 'cRevisao', sCDone: t === 'cDone',
+      sR1: t === 'r1', sR2: t === 'r2', sR3: t === 'r3',
       sIAprovar: t === 'iAprovar', sRDone: t === 'rDone', sM1: t === 'm1', sM2: t === 'm2', sM3: t === 'm3',
       sM4: t === 'm4', sMDone: t === 'mDone',
-      etapaLabel: PASSO[t] || '', mostrarVoltar: t !== 'welcome' && t !== 'iAprovar',
+      etapaLabel: PASSO[t] || '', mostrarVoltar: t !== 'welcome' && t !== 'iAprovar' && t !== 'cDone',
       erro: s.erro, temAcao: !!acoes[t], acaoLabel: acoes[t] || '',
       acaoFundo: 'var(--r60-accent-deep)',
       avancar: () => this.proximo(), voltar: () => this.voltar(), reiniciar: () => this.reiniciar(),
@@ -781,6 +951,22 @@ class Component extends DCLogic {
       irIdoso: () => this.go(s.fluxo === 'passo' ? 'i1' : 'iUnica'),
       irResp: () => this.go('r1'), irMoto: () => this.go('m1'),
       mapa,
+      enderecoCasa: this.enderecoCasa(),
+      escolherCasa: () => this.escolherCasa(), usarLocalizacao: () => this.usarLocalizacaoAtual(), geoStatus: s.geoStatus,
+      casaSelecionada: f.cOrigem === this.enderecoCasa(), casaBorda: f.cOrigem === this.enderecoCasa() ? on.border : off.border,
+      casaFundo: f.cOrigem === this.enderecoCasa() ? on.background : off.background, casaMarca: f.cOrigem === this.enderecoCasa() ? '✓' : '',
+      localSelecionada: f.cOrigem === 'Minha localização atual',
+      localBorda: f.cOrigem === 'Minha localização atual' ? on.border : off.border,
+      localFundo: f.cOrigem === 'Minha localização atual' ? on.background : off.background, localMarca: f.cOrigem === 'Minha localização atual' ? '✓' : '',
+      destinosFrequentes: DESTINOS_FREQUENTES.map(d => {
+        const selecionado = f.cDestino === d.endereco;
+        return { nome:d.nome, endereco:d.endereco, icone:d.icone, selecionado, marca:selecionado?'✓':'',
+          borda:selecionado?on.border:off.border, fundo:selecionado?on.background:off.background,
+          escolher:() => this.set('cDestino', d.endereco) };
+      }),
+      corridaOrigem: f.cOrigem || '—', corridaDestino: f.cDestino || '—',
+      corridaAcessibilidade: s.acess.length ? s.acess.join(', ') : 'Nenhuma necessidade informada',
+      editarOrigem: () => this.go('cOrigem'), editarDestino: () => this.go('cDestino'),
       demos: PERFIS.map(p => ({ emoji: p.emoji, nome: p.nome, papel: p.papel,
         abrir: () => this.setState({ tela: 'demo', demo: p, erro: '' }) })),
       demo: s.demo || PERFIS[0],
