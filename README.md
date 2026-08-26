@@ -89,17 +89,22 @@ origem. O servidor HTTP local é obrigatório.
 
 ## Usando o protótipo
 
-Ao carregar, a página exibe uma barra de controles acima do frame do dispositivo:
+A página mostra apenas o aparelho, centralizado — sem textos ou controles em volta. Toda a
+navegação acontece dentro da própria tela, como no aplicativo real.
 
-| Controle | Função |
+| Onde | Função |
 | --- | --- |
-| **Passo a passo (3 telas)** | Cadastro do idoso dividido em três etapas |
-| **Tela única (rolagem)** | Mesmo cadastro em uma tela contínua — variante para teste A/B |
-| **Tema claro / escuro** | Alterna o tema (a escolha persiste no `localStorage`) |
-| **Reiniciar** | Limpa o formulário e volta à tela inicial |
+| **🔊 no topo da tela** | Lê a tela em voz alta (`pt-BR`) |
+| **☀️ / 🌙 no topo da tela** | Alterna o tema (a escolha persiste no `localStorage`) |
+| **← no topo da tela** | Volta uma etapa |
+| **"Voltar ao início"** | Nas telas de conclusão, limpa o formulário e recomeça |
 
-Abaixo do frame há um **mapa de telas** numerado que permite pular direto para qualquer uma das 19
-telas sem percorrer o fluxo.
+O cadastro do idoso tem duas variantes para teste A/B. O passo a passo em três telas é o padrão; a
+versão em tela única abre pela URL:
+
+```
+http://localhost:5500/Rota60%20Cadastro.dc.html?fluxo=unica
+```
 
 ### Fluxos implementados
 
